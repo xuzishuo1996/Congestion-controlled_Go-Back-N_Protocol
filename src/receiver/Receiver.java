@@ -88,7 +88,8 @@ public class Receiver {
                 // write the newly received packet to the file and update the window
                 else {
                     // write to file
-                    
+                    System.out.println("[Get Data]: " + dataPacket.getData());
+                    writer.write(dataPacket.getData());
                     // ack
                     udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
                     // update window
@@ -98,6 +99,8 @@ public class Receiver {
                 // has acked all segments
                 if (rcvSeqNum == rcvBase - 1) {
                     udpUtility.sendPacket(new Packet(Constant.EOT, rcvBase - 1, 0, null));
+                    System.out.println("[Receiver] has received all packets!");
+                    System.exit(1);
                 }
                 // has segments not been acked
                 else {
