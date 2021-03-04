@@ -1,7 +1,12 @@
 package receiver;
 
+import shared.Constant;
+import shared.Packet;
+import shared.UDPUtility;
+
 import java.io.*;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class Receiver {
@@ -12,7 +17,7 @@ public class Receiver {
      * 3. <UDP port number used by the receiver to receive data from the emulator>
      * 4. <name of the file into which the received data is written>
      */
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         // parse command line args
         if (args.length != 4) {
             System.err.println("Invalid number of arguments. Should specify 4 args.");
@@ -59,6 +64,46 @@ public class Receiver {
         PrintStream arrivalLog = new PrintStream(
                 new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/arrival.log")));
 
+        // receive window: rcvBase is the next seq to be acked
+        // last acked: rcvBase - 1;
+        int rcvBase = 0;
 
+        while (true) {
+            UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
+            // get data packet from the emulator
+            Packet dataPacket = udpUtility.receivePacket();
+            // see the seq number and check whether write to file and send ack, or resend prev acks
+            int type = dataPacket.getType();
+            int rcvSeqNum = dataPacket.getSeqNum();
+            if (type == Constant.DATA) {
+                // log
+                arrivalLog.println(rcvSeqNum);
+
+                // the sequence number is NOT the one that it is expecting:
+                // discard the received packet and resend an ACK packet for the most recently received in-order packet.
+                if (rcvSeqNum != rcvBase) {
+                    udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase - 1, 0, null));
+                }
+                // the sequence number is the one that it is expecting:
+                // write the newly received packet to the file and update the window
+                else {
+                    // write to file
+                    
+                    // ack
+                    udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
+                    // update window
+                    rcvBase = (rcvBase + 1) % Constant.MODULO;
+                }
+            } else {    // type == Constant.EOT
+                // has acked all segments
+                if (rcvSeqNum == rcvBase - 1) {
+                    udpUtility.sendPacket(new Packet(Constant.EOT, rcvBase - 1, 0, null));
+                }
+                // has segments not been acked
+                else {
+                    udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase - 1, 0, null));
+                }
+            }
+        }
     }
 }
