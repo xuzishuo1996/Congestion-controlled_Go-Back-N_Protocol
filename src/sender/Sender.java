@@ -1,12 +1,14 @@
 package sender;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Sender {
+
+    // window size
+    int N = 10;
+
     /*
      * command line input includes the following:
      * 1. <host address of the network emulator> (hostname)
@@ -15,7 +17,7 @@ public class Sender {
      * 4. <timeout interval in units of millisecond>
      * 5. <name of the file to be transferred> in the given order.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         // parse command line args
         if (args.length != 5) {
             System.err.println("Invalid number of arguments. Should specify 5 args.");
@@ -65,5 +67,21 @@ public class Sender {
             System.exit(-1);
         }
         System.out.println("filename is " + filename);
+
+        // set the output log file
+        PrintStream seqLog = new PrintStream(
+                new BufferedOutputStream(new FileOutputStream("../../seqnum.log")));
+        PrintStream ackLog = new PrintStream(
+                new BufferedOutputStream(new FileOutputStream("../../ack.log")));
+        PrintStream nLog = new PrintStream(
+                new BufferedOutputStream(new FileOutputStream("../../N.log")));
+
+        try {
+
+        } finally {
+            seqLog.close();
+            ackLog.close();
+            nLog.close();
+        }
     }
 }
