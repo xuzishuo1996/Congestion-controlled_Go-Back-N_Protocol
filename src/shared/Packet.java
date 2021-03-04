@@ -37,7 +37,7 @@ public class Packet {
         int seqNum = buffer.getInt();
         int length = buffer.getInt();
         String data = null;
-        if (length != 0) {
+        if (length > 0) {
             byte[] tmp = new byte[length];
             buffer.get(tmp, 0, length);
             data = new String(tmp);

@@ -7,6 +7,8 @@ import shared.UDPUtility;
 
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Sender {
 
@@ -87,14 +89,17 @@ public class Sender {
 //        DatagramSocket sendDataSocket = new DatagramSocket(sPort);
 //        DatagramSocket receiveACKSocket = new DatagramSocket(rPort);
 
-        UDPUtility sendUtility = new UDPUtility(sPort, sendDatagramSocket, receiveDatagramSocket, emulatorAddress);
+        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
         String data = myFileReaderString.getNextSegment();
         // TODO: seqNum
         int seqNum = 0;
-        sendUtility.sendPacket(new Packet(Constant.DATA, seqNum, data.length(), data));
+        udpUtility.sendPacket(new Packet(Constant.DATA, seqNum, data.length(), data));
+        String timestamp1 = UDPUtility.getTimeStamp();
+        seqLog.println(timestamp1 + " " + seqNum);
 
-        UDPUtility receiveUtility = new UDPUtility(rPort, sendDatagramSocket, receiveDatagramSocket, emulatorAddress);
-        Packet ack = receiveUtility.receivePacket();
+        Packet ack = udpUtility.receivePacket();
+        String timestamp2 = UDPUtility.getTimeStamp();
+        ackLog.println(timestamp2 + " " + ack.getSeqNum());
 //        byte[] placeholderACKBytes = new byte[Constant.ACK_SIZE];
 //        DatagramPacket receivedACKPacket = new DatagramPacket(placeholderACKBytes, placeholderACKBytes.length);
 //        receiveACKSocket.receive(receivedACKPacket);

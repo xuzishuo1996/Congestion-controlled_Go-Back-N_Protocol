@@ -5,6 +5,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Random;
 
 public class UDPUtility {
@@ -57,5 +59,10 @@ public class UDPUtility {
         }
 
         throw new SocketException("No available ports!");
+    }
+
+    public static String getTimeStamp() {
+        // https://stackoverflow.com/questions/23068676/how-to-get-current-timestamp-in-string-format-in-java-yyyy-mm-dd-hh-mm-ss
+        return new SimpleDateFormat("yyyy.MM.dd - HH:mm:ss").format(new Date());
     }
 }
