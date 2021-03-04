@@ -77,7 +77,7 @@ public class Sender {
         // create input file reader
         MyFileReaderString myFileReaderString = new MyFileReaderString(reader);
 
-        // set the output log file
+        // set the output log files: in src/ folder
         PrintStream seqLog = new PrintStream(
                 new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/seqnum.log")));
         PrintStream ackLog = new PrintStream(

@@ -28,7 +28,7 @@ public class MyFileReaderString {
     // pass test
     public static void main(String[] args) throws IOException {
         // System.getProperty("java.class.path")    // class path
-        // System.getProperty("user.dir")           // project path
+        // System.getProperty("user.dir")           // src path
         // /home/xuzishuo1996/Waterloo/cs656-repos/a2/input1.txt
         BufferedReader reader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/input1.txt"));
         MyFileReaderString myFileReader = new MyFileReaderString(reader);

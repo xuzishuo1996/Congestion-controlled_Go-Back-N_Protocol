@@ -12,7 +12,7 @@ public class Receiver {
      * 3. <UDP port number used by the receiver to receive data from the emulator>
      * 4. <name of the file into which the received data is written>
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         // parse command line args
         if (args.length != 4) {
             System.err.println("Invalid number of arguments. Should specify 4 args.");
@@ -54,6 +54,10 @@ public class Receiver {
             System.exit(-1);
         }
         System.out.println("filename is " + filename);
+
+        // set the output log file: in src/ folder
+        PrintStream arrivalLog = new PrintStream(
+                new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/arrival.log")));
 
 
     }
