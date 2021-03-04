@@ -87,13 +87,13 @@ public class Sender {
 //        DatagramSocket sendDataSocket = new DatagramSocket(sPort);
 //        DatagramSocket receiveACKSocket = new DatagramSocket(rPort);
 
-        UDPUtility sendUtility = new UDPUtility(sPort, emulatorAddress);
+        UDPUtility sendUtility = new UDPUtility(sPort, sendDatagramSocket, receiveDatagramSocket, emulatorAddress);
         String data = myFileReaderString.getNextSegment();
         // TODO: seqNum
         int seqNum = 0;
         sendUtility.sendPacket(new Packet(Constant.DATA, seqNum, data.length(), data));
 
-        UDPUtility receiveUtility = new UDPUtility(rPort, emulatorAddress);
+        UDPUtility receiveUtility = new UDPUtility(rPort, sendDatagramSocket, receiveDatagramSocket, emulatorAddress);
         Packet ack = receiveUtility.receivePacket();
 //        byte[] placeholderACKBytes = new byte[Constant.ACK_SIZE];
 //        DatagramPacket receivedACKPacket = new DatagramPacket(placeholderACKBytes, placeholderACKBytes.length);
