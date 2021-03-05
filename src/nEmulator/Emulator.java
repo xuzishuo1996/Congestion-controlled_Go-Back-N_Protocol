@@ -9,6 +9,8 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Emulator {
@@ -178,12 +180,37 @@ public class Emulator {
                         if (randForDiscard.nextDouble() >= discardProbability) {
                             int delay = randForDelay.nextInt(maxDelay + 1); // +1 because the bound is exclusive
                             // timer task and put it to the queue after the timer becomes 0
+                            new Thread(() -> {
+                                Timer timer = new Timer();
+                                timer.schedule(new DelayPacketTask(queue, packet), delay);
+                            }).start();
                         }
                         // else: discard the packet
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+            }
+        }
+    }
+
+    static class DelayPacketTask extends TimerTask {
+        private final LinkedBlockingQueue<Packet> queue;
+        private final Packet packet;
+
+        public DelayPacketTask(LinkedBlockingQueue<Packet> queue, Packet packet) {
+            this.queue = queue;
+            this.packet = packet;
+        }
+
+        @Override
+        public void run() {
+            // https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/concurrent/LinkedBlockingQueue.html#offer(E)
+            // offer is generally preferable to method add, which can fail to insert an element only by throwing an exception
+            // returns true is successfully inserted the element
+            boolean success = false;
+            while (!success) {
+               success = queue.offer(packet);
             }
         }
     }
