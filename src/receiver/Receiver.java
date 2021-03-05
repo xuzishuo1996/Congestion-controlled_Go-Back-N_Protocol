@@ -68,8 +68,8 @@ public class Receiver {
         // last acked: rcvBase - 1;
         int rcvBase = 0;
 
+        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
         while (true) {
-            UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
             // get data packet from the emulator
             Packet dataPacket = udpUtility.receivePacket();
             // see the seq number and check whether write to file and send ack, or resend prev acks

@@ -1,10 +1,13 @@
 package nEmulator;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import shared.Packet;
+import shared.UDPUtility;
+
+import java.io.IOException;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Emulator {
     /*
@@ -21,8 +24,7 @@ public class Emulator {
             per line, e.g. receiving Packet seqnum /ACK seqnum , discarding Packet seqnum /ACK seqnum,
             forwarding Packet seqnum /ACK seqnum ).
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws SocketException {
         // parse command line args
         if (args.length != 9) {
             System.err.println("Invalid number of arguments. Should specify 9 args.");
@@ -30,7 +32,7 @@ public class Emulator {
         }
 
         int fwdEmuRcvPort = 0;
-        InetAddress rcvAddress = null;
+        InetAddress receiverAddress = null;
         int fwdRcverRcvPort = 0;
         int backEmuRcvPort = 0;
         InetAddress senderAddress = null;
@@ -46,7 +48,7 @@ public class Emulator {
             System.exit(-1);
         }
         try {
-            rcvAddress = InetAddress.getByName(args[1]);
+            receiverAddress = InetAddress.getByName(args[1]);
         } catch (UnknownHostException e) {
             System.err.println("Error: Invalid receiver address!");
             System.exit(-1);
@@ -101,5 +103,58 @@ public class Emulator {
         }
 
         System.out.println("here!");
+
+        UDPUtility senderUtility = new UDPUtility(backSenderRcvPort, fwdEmuRcvPort, senderAddress);
+        UDPUtility receiverUtility = new UDPUtility(fwdRcverRcvPort, backEmuRcvPort, receiverAddress);
+
+        // LinkedBlockingQueue is suitable for many producer (timed packets) and one consumer (emulator).
+        LinkedBlockingQueue<Packet> forwardQueue = new LinkedBlockingQueue<>();
+        LinkedBlockingQueue<Packet> backwardQueue = new LinkedBlockingQueue<>();
+
+        // start receive ACK from receiver task
+        new Thread(new RcvAckFromReceiverTask()).start();
+        // start receive DATA from sender task
+        new Thread(new RcvDataFromSenderTask()).start();
+        // start send DATA to receiver task
+        new Thread(new SendTask(receiverUtility, forwardQueue)).start();
+        // start send ACK to sender task
+        new Thread(new SendTask(senderUtility, backwardQueue)).start();
+    }
+
+    static class SendTask implements Runnable {
+        private final UDPUtility udpUtility;
+        private final LinkedBlockingQueue<Packet> queue;
+
+        SendTask(UDPUtility receiverUtility, LinkedBlockingQueue<Packet> queue) {
+            this.udpUtility = receiverUtility;
+            this.queue = queue;
+        }
+
+        @Override
+        public void run() {
+            while (true) {
+                Packet packet;
+                try {
+                    packet = queue.take();   // waiting if necessary until an element becomes available.
+                    udpUtility.sendPacket(packet);
+                } catch (InterruptedException | IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    static class RcvDataFromSenderTask implements Runnable {
+        @Override
+        public void run() {
+
+        }
+    }
+
+    static class RcvAckFromReceiverTask implements Runnable {
+        @Override
+        public void run() {
+
+        }
     }
 }
