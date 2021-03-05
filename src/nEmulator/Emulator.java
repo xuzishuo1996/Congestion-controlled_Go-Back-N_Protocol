@@ -1,5 +1,6 @@
 package nEmulator;
 
+import shared.Constant;
 import shared.Packet;
 import shared.UDPUtility;
 
@@ -7,6 +8,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Random;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Emulator {
@@ -112,9 +114,9 @@ public class Emulator {
         LinkedBlockingQueue<Packet> backwardQueue = new LinkedBlockingQueue<>();
 
         // start receive ACK from receiver task
-        new Thread(new RcvAckFromReceiverTask()).start();
+        new Thread(new ReceiveTask(receiverUtility, backwardQueue, discardProbability, maxDelay)).start();
         // start receive DATA from sender task
-        new Thread(new RcvDataFromSenderTask()).start();
+        new Thread(new ReceiveTask(senderUtility, forwardQueue, discardProbability, maxDelay)).start();
         // start send DATA to receiver task
         new Thread(new SendTask(receiverUtility, forwardQueue)).start();
         // start send ACK to sender task
@@ -144,17 +146,45 @@ public class Emulator {
         }
     }
 
-    static class RcvDataFromSenderTask implements Runnable {
-        @Override
-        public void run() {
+    static class ReceiveTask implements Runnable {
+        private final UDPUtility udpUtility;
+        private final LinkedBlockingQueue<Packet> queue;
+        private final double discardProbability;
+        private final int maxDelay;
 
+        ReceiveTask(UDPUtility udpUtility, LinkedBlockingQueue<Packet> queue,
+                              double discardProbability, int maxDelay) {
+            this.udpUtility = udpUtility;
+            this.queue = queue;
+            this.discardProbability = discardProbability;
+            this.maxDelay = maxDelay;
         }
-    }
 
-    static class RcvAckFromReceiverTask implements Runnable {
         @Override
         public void run() {
+            Random randForDiscard = new Random();
+            Random randForDelay = new Random();
 
+            while (true) {
+                try {
+                    Packet packet = udpUtility.receivePacket();
+                    if (packet.getType() == Constant.EOT) {
+                        // wait until there are no more packets in the buffer
+                        while (!queue.isEmpty());
+                        udpUtility.sendPacket(packet);
+                    } else {    // packet.getType() == Constant.DATA/ACK
+                        // decide discard or not
+                        // send the packet
+                        if (randForDiscard.nextDouble() >= discardProbability) {
+                            int delay = randForDelay.nextInt(maxDelay + 1); // +1 because the bound is exclusive
+                            // timer task and put it to the queue after the timer becomes 0
+                        }
+                        // else: discard the packet
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 }
