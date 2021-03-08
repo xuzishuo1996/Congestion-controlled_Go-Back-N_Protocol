@@ -4,12 +4,23 @@ import shared.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Sender {
 
     // window size
     static int N = 10;
+    // or int? AtomicLong?
+    static AtomicInteger timestamp = new AtomicInteger(0);
+
+    static InetAddress emulatorAddress = null;
+    static int sPort = 0;
+    static int rPort = 0;
+    static int timeout = 0;    // in millisecond
+    static String filename = null;
+    static BufferedInputStream reader = null;
 
     /*
      * command line input includes the following:
@@ -26,12 +37,12 @@ public class Sender {
             System.exit(-1);
         }
 
-        InetAddress emulatorAddress = null;
-        int sPort = 0;
-        int rPort = 0;
-        int timeout = 0;    // in millisecond
-        String filename = null;
-        BufferedInputStream reader = null;
+//        InetAddress emulatorAddress = null;
+//        int sPort = 0;
+//        int rPort = 0;
+//        int timeout = 0;    // in millisecond
+//        String filename = null;
+//        BufferedInputStream reader = null;
         //BufferedReader reader = null;
 
         try {
@@ -88,20 +99,22 @@ public class Sender {
 //        DatagramSocket sendDataSocket = new DatagramSocket(sPort);
 //        DatagramSocket receiveACKSocket = new DatagramSocket(rPort);
 
-        int timestamp = 0;
+        // int timestamp = 0;
 
-        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress, timeout);
+        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
 
         // TODO: seqNum
         int seqNum = 0;
         Packet currPacket = myFileReaderBytes.getNextPacket();
         udpUtility.sendPacket(currPacket);
-        ++timestamp;
-        seqLog.println(timestamp + " " + seqNum);
+        // ++timestamp;
+        timestamp.incrementAndGet();
+        seqLog.println("t=" + timestamp + " " + seqNum);
 
         Packet ack = udpUtility.receivePacket();
-        ++timestamp;
-        ackLog.println(timestamp + " " + ack.getSeqNum());
+        // ++timestamp;
+        timestamp.incrementAndGet();
+        ackLog.println("t=" + timestamp + " " + ack.getSeqNum());
 //        byte[] placeholderACKBytes = new byte[Constant.ACK_SIZE];
 //        DatagramPacket receivedACKPacket = new DatagramPacket(placeholderACKBytes, placeholderACKBytes.length);
 //        receiveACKSocket.receive(receivedACKPacket);
@@ -118,9 +131,12 @@ public class Sender {
         }
     }
 
-    public static void sendHelper(MyFileReaderBytes reader, UDPUtility udpUtility) throws IOException {
+    public static void sendHelper(MyFileReaderBytes reader, UDPUtility udpUtility,
+                                  PrintStream seqLog, PrintStream ackLog, PrintStream nLog) throws IOException {
         // packets in the send-window
-        LinkedList<Packet> packets = new LinkedList<>();
+        // LinkedList<Packet> packets = new LinkedList<>();
+
+        ConcurrentLinkedDeque<Packet> packets = new ConcurrentLinkedDeque<>();
 
         // at the beginning
         for (int i = 0; i < N; ++i) {
@@ -132,14 +148,78 @@ public class Sender {
                 break;
             }
         }
+        // TODO: start timer
         for (Packet packet: packets) {
             udpUtility.sendPacket(packet);
         }
 
-        try {
+        while (true) {
+            // receive actions
             Packet ackPacket = udpUtility.receivePacket();
-        } catch (SocketTimeoutException e) {
-            // log timeout
+            timestamp.incrementAndGet();
+            int oldestSeqNum = packets.peekFirst().getSeqNum();
+            ackLog.println("t=" + timestamp + " " + ackPacket.getSeqNum());
+            // ack seqNum fall within the sending window
+            if (ackPacket.getSeqNum() >= oldestSeqNum && ackPacket.getSeqNum() < oldestSeqNum + N) {
+                // if there are unacked packets
+                if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
+                    // TODO: restart timer
+                }
+                // remove acked packets from the window
+                for (int i = 0; i < ackPacket.getSeqNum() - oldestSeqNum + 1; ++i) {
+                    packets.pollFirst();
+                }
+                // inc the sending window size
+                if (N < 10) {
+                    ++N;
+                    // do not inc timestamp here
+                    nLog.println("t=" + timestamp + " " + N);
+                }
+
+                // send actions: check if the window if full
+                if (packets.size() < N) {
+                    for (int i = 0; i < N - packets.size(); ++i) {
+                        Packet packet = reader.getNextPacket();
+                        packets.add(packet);
+                    }
+                    for (int i = 0; i < N - packets.size(); ++i) {
+                        assert packets.peekFirst() != null;
+                        udpUtility.sendPacket(packets.peekFirst());
+                        // TODO: if i = 0 and timer not started, start timer
+                    }
+                }
+            }
+        }
+    }
+
+    static class SenderSendTask implements Runnable {
+        private final ConcurrentLinkedDeque<Packet> packets;
+
+        SenderSendTask(ConcurrentLinkedDeque<Packet> packets) {
+            this.packets = packets;
+        }
+
+        @Override
+        public void run() {
+
+            while (true) {
+                if (packets.size() < N) {
+
+                }
+            }
+        }
+    }
+
+    static class SenderReceiveTask implements Runnable {
+        private final ConcurrentLinkedDeque<Packet> packets;
+
+        SenderReceiveTask(ConcurrentLinkedDeque<Packet> packets) {
+            this.packets = packets;
+        }
+
+        @Override
+        public void run() {
+
         }
     }
 }

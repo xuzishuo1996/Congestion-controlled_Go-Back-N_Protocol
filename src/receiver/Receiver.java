@@ -67,7 +67,7 @@ public class Receiver {
         // last acked: rcvBase - 1;
         int rcvBase = 0;
 
-        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress, timeout);
+        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
         while (true) {
             // get data packet from the emulator
             Packet dataPacket = udpUtility.receivePacket();

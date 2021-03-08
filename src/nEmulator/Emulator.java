@@ -108,8 +108,8 @@ public class Emulator {
 
         System.out.println("here!");
 
-        UDPUtility senderUtility = new UDPUtility(backSenderRcvPort, fwdEmuRcvPort, senderAddress, timeout);
-        UDPUtility receiverUtility = new UDPUtility(fwdRcverRcvPort, backEmuRcvPort, receiverAddress, timeout);
+        UDPUtility senderUtility = new UDPUtility(backSenderRcvPort, fwdEmuRcvPort, senderAddress);
+        UDPUtility receiverUtility = new UDPUtility(fwdRcverRcvPort, backEmuRcvPort, receiverAddress);
 
         // LinkedBlockingQueue is suitable for many producer (timed packets) and one consumer (emulator).
         LinkedBlockingQueue<Packet> forwardQueue = new LinkedBlockingQueue<>();
