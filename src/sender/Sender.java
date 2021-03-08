@@ -1,9 +1,6 @@
 package sender;
 
-import shared.Constant;
-import shared.MyFileReaderString;
-import shared.Packet;
-import shared.UDPUtility;
+import shared.*;
 
 import java.io.*;
 import java.net.*;
@@ -35,7 +32,8 @@ public class Sender {
         int rPort = 0;
         int timeout = 0;    // in millisecond
         String filename = null;
-        BufferedReader reader = null;
+        BufferedInputStream reader = null;
+        //BufferedReader reader = null;
 
         try {
             emulatorAddress = InetAddress.getByName(args[0]);
@@ -67,7 +65,8 @@ public class Sender {
         System.out.println("timeout is " + timeout);
         filename = args[4];
         try {
-            reader = new BufferedReader(new FileReader(filename));
+            reader = new BufferedInputStream(new FileInputStream(filename));
+            //reader = new BufferedReader(new FileReader(filename));
         } catch (FileNotFoundException e) {
             System.err.println("Error: file not found!");
             System.exit(-1);
@@ -75,7 +74,8 @@ public class Sender {
         System.out.println("filename is " + filename);
 
         // create input file reader
-        MyFileReaderString myFileReaderString = new MyFileReaderString(reader);
+        MyFileReaderBytes myFileReaderBytes = new MyFileReaderBytes(reader);
+        //MyFileReaderString myFileReaderString = new MyFileReaderString(reader);
 
         // set the output log files: in src/ folder
         PrintStream seqLog = new PrintStream(
@@ -89,17 +89,20 @@ public class Sender {
 //        DatagramSocket sendDataSocket = new DatagramSocket(sPort);
 //        DatagramSocket receiveACKSocket = new DatagramSocket(rPort);
 
+        int timestamp = 0;
+
         UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
-        String data = myFileReaderString.getNextSegment();
+
         // TODO: seqNum
         int seqNum = 0;
-        udpUtility.sendPacket(new Packet(Constant.DATA, seqNum, data.length(), data));
-        String timestamp1 = UDPUtility.getTimeStamp();
-        seqLog.println(timestamp1 + " " + seqNum);
+        Packet currPacket = myFileReaderBytes.getNextPacket();
+        udpUtility.sendPacket(currPacket);
+        ++timestamp;
+        seqLog.println(timestamp + " " + seqNum);
 
         Packet ack = udpUtility.receivePacket();
-        String timestamp2 = UDPUtility.getTimeStamp();
-        ackLog.println(timestamp2 + " " + ack.getSeqNum());
+        ++timestamp;
+        ackLog.println(timestamp + " " + ack.getSeqNum());
 //        byte[] placeholderACKBytes = new byte[Constant.ACK_SIZE];
 //        DatagramPacket receivedACKPacket = new DatagramPacket(placeholderACKBytes, placeholderACKBytes.length);
 //        receiveACKSocket.receive(receivedACKPacket);
