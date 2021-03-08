@@ -9,7 +9,7 @@ public class Constant {
     public static int PACKET_HEADER_SIZE = SIZE_OF_INT * 3;    // 3 ints; also = ACK_SIZE
     public static int ACK_SIZE = PACKET_HEADER_SIZE;
     public static int EOT_SIZE = PACKET_HEADER_SIZE;
-    public static int MAX_PAYLOAD_SIZE = MAX_SEGMENT_LENGTH / SIZE_OF_CHAR; // measured in bytes;
+    public static int MAX_PAYLOAD_SIZE = MAX_SEGMENT_LENGTH; // measured in bytes;
     public static int MAX_DATA_PACKET_SIZE = PACKET_HEADER_SIZE + MAX_PAYLOAD_SIZE; // measured in bytes;
 
 //    enum TYPE {
