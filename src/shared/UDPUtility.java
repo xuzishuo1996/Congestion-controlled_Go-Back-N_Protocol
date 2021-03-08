@@ -16,15 +16,19 @@ public class UDPUtility {
 
     private final int sPort;
     private final int rPort;
+    private final int timeout;
     private final DatagramSocket sendDatagramSocket;
     private final DatagramSocket receiveDatagramSocket;
     private final InetAddress IPAddress;    // host name of the other side
 
-    public UDPUtility(int sPort, int rPort, InetAddress ipAddress) throws SocketException {
+    public UDPUtility(int sPort, int rPort, InetAddress ipAddress, int timeout) throws SocketException {
         this.sPort = sPort;
         this.rPort = rPort;
+        this.timeout = timeout;
         this.sendDatagramSocket = getAnAvailableUDPSocket();
         this.receiveDatagramSocket = new DatagramSocket(rPort);
+        // set timeout of the receive DatagramSocket
+        receiveDatagramSocket.setSoTimeout(timeout);
         IPAddress = ipAddress;
     }
 

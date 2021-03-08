@@ -4,13 +4,12 @@ import shared.*;
 
 import java.io.*;
 import java.net.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.LinkedList;
 
 public class Sender {
 
     // window size
-    int N = 10;
+    static int N = 10;
 
     /*
      * command line input includes the following:
@@ -91,7 +90,7 @@ public class Sender {
 
         int timestamp = 0;
 
-        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
+        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress, timeout);
 
         // TODO: seqNum
         int seqNum = 0;
@@ -115,6 +114,32 @@ public class Sender {
             seqLog.close();
             ackLog.close();
             nLog.close();
+            reader.close();
+        }
+    }
+
+    public static void sendHelper(MyFileReaderBytes reader, UDPUtility udpUtility) throws IOException {
+        // packets in the send-window
+        LinkedList<Packet> packets = new LinkedList<>();
+
+        // at the beginning
+        for (int i = 0; i < N; ++i) {
+            try {
+                Packet packet = reader.getNextPacket();
+                packets.add(packet);
+            } catch (EOFException e) {  // EOT
+                // TODO: EOT handling
+                break;
+            }
+        }
+        for (Packet packet: packets) {
+            udpUtility.sendPacket(packet);
+        }
+
+        try {
+            Packet ackPacket = udpUtility.receivePacket();
+        } catch (SocketTimeoutException e) {
+            // log timeout
         }
     }
 }

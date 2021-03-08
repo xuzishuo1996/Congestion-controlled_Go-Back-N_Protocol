@@ -6,7 +6,6 @@ import shared.UDPUtility;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 
 public class Receiver {
@@ -68,7 +67,7 @@ public class Receiver {
         // last acked: rcvBase - 1;
         int rcvBase = 0;
 
-        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
+        UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress, timeout);
         while (true) {
             // get data packet from the emulator
             Packet dataPacket = udpUtility.receivePacket();
@@ -100,6 +99,9 @@ public class Receiver {
                 if (rcvSeqNum == rcvBase - 1) {
                     udpUtility.sendPacket(new Packet(Constant.EOT, rcvBase - 1, 0, null));
                     System.out.println("[Receiver] has received all packets!");
+
+                    arrivalLog.close();
+                    writer.close();
                     System.exit(1);
                 }
                 // has segments not been acked
