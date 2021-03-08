@@ -116,22 +116,24 @@ public class Emulator {
         LinkedBlockingQueue<Packet> backwardQueue = new LinkedBlockingQueue<>();
 
         // start receive ACK from receiver task
-        new Thread(new ReceiveTask(receiverUtility, backwardQueue, discardProbability, maxDelay)).start();
+        new Thread(new ReceiveTask(receiverUtility, backwardQueue, discardProbability, maxDelay, verbose)).start();
         // start receive DATA from sender task
-        new Thread(new ReceiveTask(senderUtility, forwardQueue, discardProbability, maxDelay)).start();
+        new Thread(new ReceiveTask(senderUtility, forwardQueue, discardProbability, maxDelay, verbose)).start();
         // start send DATA to receiver task
-        new Thread(new SendTask(receiverUtility, forwardQueue)).start();
+        new Thread(new SendTask(receiverUtility, forwardQueue, verbose)).start();
         // start send ACK to sender task
-        new Thread(new SendTask(senderUtility, backwardQueue)).start();
+        new Thread(new SendTask(senderUtility, backwardQueue, verbose)).start();
     }
 
     static class SendTask implements Runnable {
         private final UDPUtility udpUtility;
         private final LinkedBlockingQueue<Packet> queue;
+        private final boolean verbose;
 
-        SendTask(UDPUtility receiverUtility, LinkedBlockingQueue<Packet> queue) {
+        SendTask(UDPUtility receiverUtility, LinkedBlockingQueue<Packet> queue, boolean verbose) {
             this.udpUtility = receiverUtility;
             this.queue = queue;
+            this.verbose = verbose;
         }
 
         @Override
@@ -141,6 +143,9 @@ public class Emulator {
                 try {
                     packet = queue.take();   // waiting if necessary until an element becomes available.
                     udpUtility.sendPacket(packet);
+                    if (verbose) {
+                        logAction("forwarding", packet.getType(), packet.getSeqNum());
+                    }
                 } catch (InterruptedException | IOException e) {
                     e.printStackTrace();
                 }
@@ -153,13 +158,15 @@ public class Emulator {
         private final LinkedBlockingQueue<Packet> queue;
         private final double discardProbability;
         private final int maxDelay;
+        private final boolean verbose;
 
         ReceiveTask(UDPUtility udpUtility, LinkedBlockingQueue<Packet> queue,
-                              double discardProbability, int maxDelay) {
+                    double discardProbability, int maxDelay, boolean verbose) {
             this.udpUtility = udpUtility;
             this.queue = queue;
             this.discardProbability = discardProbability;
             this.maxDelay = maxDelay;
+            this.verbose = verbose;
         }
 
         @Override
@@ -170,6 +177,9 @@ public class Emulator {
             while (true) {
                 try {
                     Packet packet = udpUtility.receivePacket();
+                    if (verbose) {
+                        logAction("receiving", packet.getType(), packet.getSeqNum());
+                    }
                     if (packet.getType() == Constant.EOT) {
                         // wait until there are no more packets in the buffer
                         while (!queue.isEmpty());
@@ -186,6 +196,11 @@ public class Emulator {
                             }).start();
                         }
                         // else: discard the packet
+                        else {
+                            if (verbose) {
+                                logAction("discarding", packet.getType(), packet.getSeqNum());
+                            }
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -213,5 +228,16 @@ public class Emulator {
                success = queue.offer(packet);
             }
         }
+    }
+
+    private static void logAction(String action, int type, int seqnum) {
+        String printedType;
+        switch (type) {
+            case 0: printedType = "ACK"; break;
+            case 1: printedType = "DATA"; break;
+            case 2: printedType = "EOT"; break;
+            default: printedType = "Unknown Type"; break;
+        }
+        System.out.println(action + " " + type + ": seqnum = " + seqnum);
     }
 }
