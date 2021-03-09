@@ -198,17 +198,21 @@ public class Sender {
 
                 // send actions: check if the window if full
                 if (packets.size() < N) {
-                    for (int i = 0; i < N - packets.size(); ++i) {
+                    int sendNum = N - packets.size();
+                    int[] seqNums = new int[sendNum];
+                    for (int i = 0; i < sendNum; ++i) {
                         Packet packet = reader.getNextPacket();
                         packets.add(packet);
+                        // record the seq nums since ConcurrentDeque does not support access according to idx
+                        seqNums[i] = packet.getSeqNum();
                     }
-                    for (int i = 0; i < N - packets.size(); ++i) {
+                    for (int i = 0; i < sendNum; ++i) {
                         assert packets.peekFirst() != null;
                         udpUtility.sendPacket(packets.peekFirst());
                         // inc timestamp upon send
                         timestamp.incrementAndGet();
                         // log the send action
-                        seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
+                        seqLog.println("t=" + timestamp + " " + seqNums[i]);
 
                         // if i = 0 and timer not started, start timer
                         if (i == 0) {
