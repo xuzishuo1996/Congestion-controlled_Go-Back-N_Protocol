@@ -4,9 +4,10 @@ import shared.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class Sender {
 
@@ -95,34 +96,23 @@ public class Sender {
         PrintStream nLog = new PrintStream(
                 new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/N.log")));
 
-        // create sockets
-//        DatagramSocket sendDataSocket = new DatagramSocket(sPort);
-//        DatagramSocket receiveACKSocket = new DatagramSocket(rPort);
-
-        // int timestamp = 0;
-
         UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
 
-        // TODO: seqNum
-        int seqNum = 0;
-        Packet currPacket = myFileReaderBytes.getNextPacket();
-        udpUtility.sendPacket(currPacket);
-        // ++timestamp;
-        timestamp.incrementAndGet();
-        seqLog.println("t=" + timestamp + " " + seqNum);
-
-        Packet ack = udpUtility.receivePacket();
-        // ++timestamp;
-        timestamp.incrementAndGet();
-        ackLog.println("t=" + timestamp + " " + ack.getSeqNum());
-//        byte[] placeholderACKBytes = new byte[Constant.ACK_SIZE];
-//        DatagramPacket receivedACKPacket = new DatagramPacket(placeholderACKBytes, placeholderACKBytes.length);
-//        receiveACKSocket.receive(receivedACKPacket);
-//        byte[] receivedACKBytes = receivedACKPacket.getData();
-//        Packet ack = Packet.parsePacket(receivedACKBytes);
+//        // TODO: seqNum
+//        int seqNum = 0;
+//        Packet currPacket = myFileReaderBytes.getNextPacket();
+//        udpUtility.sendPacket(currPacket);
+//        // ++timestamp;
+//        timestamp.incrementAndGet();
+//        seqLog.println("t=" + timestamp + " " + seqNum);
+//
+//        Packet ack = udpUtility.receivePacket();
+//        // ++timestamp;
+//        timestamp.incrementAndGet();
+//        ackLog.println("t=" + timestamp + " " + ack.getSeqNum());
 
         try {
-
+            sendHelper(myFileReaderBytes, udpUtility, timeout, seqLog, ackLog, nLog);
         } finally {
             seqLog.close();
             ackLog.close();
@@ -131,14 +121,25 @@ public class Sender {
         }
     }
 
-    public static void sendHelper(MyFileReaderBytes reader, UDPUtility udpUtility,
+    /* TODO: need lock in timer task and sender task for N
+        timeout task:
+            1. inc timestamp and log
+            2. resend and log
+            3. dec window
+         EOT
+     */
+    public static void sendHelper(MyFileReaderBytes reader, UDPUtility udpUtility, int timeout,
                                   PrintStream seqLog, PrintStream ackLog, PrintStream nLog) throws IOException {
         // packets in the send-window
         // LinkedList<Packet> packets = new LinkedList<>();
 
         ConcurrentLinkedDeque<Packet> packets = new ConcurrentLinkedDeque<>();
+        // keeps only a single TimerTask as TCP only use a single timer for the oldest packet
+        Timer timer = new Timer();
+        boolean timerStarted = false;
 
         // at the beginning
+        // get initial packets
         for (int i = 0; i < N; ++i) {
             try {
                 Packet packet = reader.getNextPacket();
@@ -148,22 +149,41 @@ public class Sender {
                 break;
             }
         }
-        // TODO: start timer
+        // send initial packets
+        boolean isFirst = true;
         for (Packet packet: packets) {
             udpUtility.sendPacket(packet);
+            // inc timestamp upon send
+            timestamp.incrementAndGet();
+            // log the send action
+            seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
+            // start the timer for the oldest packet
+            if (isFirst) {
+                timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                timerStarted = true;
+                isFirst = false;
+            }
         }
 
         while (true) {
             // receive actions
             Packet ackPacket = udpUtility.receivePacket();
+            // inc timestamp upon receive
             timestamp.incrementAndGet();
-            int oldestSeqNum = packets.peekFirst().getSeqNum();
+            // log the ack action
             ackLog.println("t=" + timestamp + " " + ackPacket.getSeqNum());
-            // ack seqNum fall within the sending window
+
+            assert packets.peekFirst() != null;
+            int oldestSeqNum = packets.peekFirst().getSeqNum();
+            // check if ack seqNum fall within the sending window
             if (ackPacket.getSeqNum() >= oldestSeqNum && ackPacket.getSeqNum() < oldestSeqNum + N) {
                 // if there are unacked packets
                 if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
-                    // TODO: restart timer
+                    // restart timer
+                    // if (timerStarted) { timer.cancel(); }
+                    timer.cancel();
+                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                    timerStarted = true;
                 }
                 // remove acked packets from the window
                 for (int i = 0; i < ackPacket.getSeqNum() - oldestSeqNum + 1; ++i) {
@@ -172,7 +192,7 @@ public class Sender {
                 // inc the sending window size
                 if (N < 10) {
                     ++N;
-                    // do not inc timestamp here
+                    // log: do not inc timestamp here
                     nLog.println("t=" + timestamp + " " + N);
                 }
 
@@ -185,12 +205,68 @@ public class Sender {
                     for (int i = 0; i < N - packets.size(); ++i) {
                         assert packets.peekFirst() != null;
                         udpUtility.sendPacket(packets.peekFirst());
-                        // TODO: if i = 0 and timer not started, start timer
+                        // inc timestamp upon send
+                        timestamp.incrementAndGet();
+                        // log the send action
+                        seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
+
+                        // if i = 0 and timer not started, start timer
+                        if (i == 0) {
+                            // if (timerStarted) { timer.cancel(); }
+                            timer.cancel();
+                            timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                            timerStarted = true;
+                        }
                     }
                 }
             }
         }
     }
+
+    static class TimeoutTask extends TimerTask {
+        private final ConcurrentLinkedDeque<Packet> packets;
+        private final UDPUtility udpUtility;
+        private final PrintStream nLog;
+        private final PrintStream seqLog;
+        private final Timer timer;
+        private final int timeout;
+
+        TimeoutTask(ConcurrentLinkedDeque<Packet> packets, UDPUtility udpUtility, PrintStream nLog, PrintStream seqLog, Timer timer, int timeout) {
+            this.packets = packets;
+            this.udpUtility = udpUtility;
+            this.nLog = nLog;
+            this.seqLog = seqLog;
+            this.timer = timer;
+            this.timeout = timeout;
+        }
+
+        @Override
+        public void run() {
+            // TODO: these assignments need to be atomic
+            // do not need to timer.cancel() since itself is the single task instance
+            N = 1;
+            // inc timestamp upon timeout
+            timestamp.incrementAndGet();
+            nLog.println("t=" + timestamp + " " + N);
+            // retransmission
+            Packet packetToResend = packets.peekFirst();
+            try {
+                assert packetToResend != null;
+                udpUtility.sendPacket(packetToResend);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // log resend: do not inc timestamp here
+            seqLog.println("t=" + packetToResend.getSeqNum() + " " + N);
+            // start the timer
+            timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+        }
+    }
+
+
+
+
+
 
     static class SenderSendTask implements Runnable {
         private final ConcurrentLinkedDeque<Packet> packets;
