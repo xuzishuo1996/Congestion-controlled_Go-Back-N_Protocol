@@ -4,6 +4,8 @@ import shared.*;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedDeque;
@@ -172,9 +174,10 @@ public class Sender {
         lock.unlock();
 
         while (true) {
-            lock.lock();
+            // TODO: the position of this lock. Could socket receive be interrupted?
             // receive actions
             Packet ackPacket = udpUtility.receivePacket();
+            lock.lock();
             // inc timestamp upon receive
             timestamp.incrementAndGet();
             // log the ack action
@@ -213,22 +216,23 @@ public class Sender {
 
                 lock.lock();
                 // send actions: check if the window if full
+                // sent but unacked packets remain in the window, only send newly added packets within the window
+                // resend only appears upon timeout
                 if (packets.size() < N) {
                     int sendNum = N - packets.size();
-                    int[] seqNums = new int[sendNum];
+                    List<Packet> newlyAddedPackets = new ArrayList<>(sendNum);
+                    // int[] seqNums = new int[sendNum];
                     for (int i = 0; i < sendNum; ++i) {
                         Packet packet = reader.getNextPacket();
+                        newlyAddedPackets.add(packet);
                         packets.add(packet);
-                        // record the seq nums since ConcurrentDeque does not support access according to idx
-                        seqNums[i] = packet.getSeqNum();
                     }
                     for (int i = 0; i < sendNum; ++i) {
-                        assert packets.peekFirst() != null;
-                        udpUtility.sendPacket(packets.peekFirst());
+                        udpUtility.sendPacket(newlyAddedPackets.get(i));
                         // inc timestamp upon send
                         timestamp.incrementAndGet();
                         // log the send action
-                        seqLog.println("t=" + timestamp + " " + seqNums[i]);
+                        seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
 
                         // if i = 0 and timer not started, start timer
                         if (i == 0) {

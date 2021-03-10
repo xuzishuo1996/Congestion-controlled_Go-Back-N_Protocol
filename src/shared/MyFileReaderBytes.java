@@ -28,6 +28,7 @@ public class MyFileReaderBytes {
         }
     }
 
+    // seqNum starts from 0
     public Packet getNextPacket() throws IOException {
         seqNum = (seqNum + 1 + Constant.MODULO) % Constant.MODULO;
 
