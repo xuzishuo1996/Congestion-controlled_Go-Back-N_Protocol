@@ -8,13 +8,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Sender {
 
     // window size
-    static int N = 10;
+    static Integer N = 10;
     // or int? AtomicLong?
     static AtomicInteger timestamp = new AtomicInteger(0);
+    static final Lock lock = new ReentrantLock();
 
     static InetAddress emulatorAddress = null;
     static int sPort = 0;
@@ -31,7 +34,7 @@ public class Sender {
      * 4. <timeout interval in units of millisecond>
      * 5. <name of the file to be transferred> in the given order.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         // parse command line args
         if (args.length != 5) {
             System.err.println("Invalid number of arguments. Should specify 5 args.");
@@ -129,7 +132,8 @@ public class Sender {
          EOT
      */
     public static void sendHelper(MyFileReaderBytes reader, UDPUtility udpUtility, int timeout,
-                                  PrintStream seqLog, PrintStream ackLog, PrintStream nLog) throws IOException {
+                                  PrintStream seqLog, PrintStream ackLog, PrintStream nLog)
+            throws IOException, InterruptedException {
         // packets in the send-window
         // LinkedList<Packet> packets = new LinkedList<>();
 
@@ -138,6 +142,7 @@ public class Sender {
         Timer timer = new Timer();
         boolean timerStarted = false;
 
+        lock.lock();
         // at the beginning
         // get initial packets
         for (int i = 0; i < N; ++i) {
@@ -164,8 +169,10 @@ public class Sender {
                 isFirst = false;
             }
         }
+        lock.unlock();
 
         while (true) {
+            lock.lock();
             // receive actions
             Packet ackPacket = udpUtility.receivePacket();
             // inc timestamp upon receive
@@ -175,7 +182,12 @@ public class Sender {
 
             assert packets.peekFirst() != null;
             int oldestSeqNum = packets.peekFirst().getSeqNum();
+            lock.unlock();
+
+            // Thread.sleep(1);
+
             // check if ack seqNum fall within the sending window
+            lock.lock();
             if (ackPacket.getSeqNum() >= oldestSeqNum && ackPacket.getSeqNum() < oldestSeqNum + N) {
                 // if there are unacked packets
                 if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
@@ -195,7 +207,11 @@ public class Sender {
                     // log: do not inc timestamp here
                     nLog.println("t=" + timestamp + " " + N);
                 }
+                lock.unlock();
 
+                // Thread.sleep(1);
+
+                lock.lock();
                 // send actions: check if the window if full
                 if (packets.size() < N) {
                     int sendNum = N - packets.size();
@@ -224,6 +240,7 @@ public class Sender {
                     }
                 }
             }
+            lock.unlock();
         }
     }
 
@@ -247,6 +264,7 @@ public class Sender {
         @Override
         public void run() {
             // TODO: these assignments need to be atomic
+            lock.lock();
             // do not need to timer.cancel() since itself is the single task instance
             N = 1;
             // inc timestamp upon timeout
@@ -264,6 +282,7 @@ public class Sender {
             seqLog.println("t=" + packetToResend.getSeqNum() + " " + N);
             // start the timer
             timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+            lock.unlock();
         }
     }
 
