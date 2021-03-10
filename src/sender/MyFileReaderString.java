@@ -1,4 +1,6 @@
-package shared;
+package sender;
+
+import shared.Constant;
 
 import java.io.*;
 

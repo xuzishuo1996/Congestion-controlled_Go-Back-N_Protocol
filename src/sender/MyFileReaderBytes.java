@@ -1,4 +1,7 @@
-package shared;
+package sender;
+
+import shared.Constant;
+import shared.Packet;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
