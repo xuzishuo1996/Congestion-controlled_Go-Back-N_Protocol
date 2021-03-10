@@ -1,4 +1,4 @@
-package nEmulator;
+package emulator;
 
 import shared.Constant;
 import shared.Packet;
@@ -238,6 +238,6 @@ public class Emulator {
             case 2: printedType = "EOT"; break;
             default: printedType = "Unknown Type"; break;
         }
-        System.out.println(action + " " + type + ": seqnum = " + seqnum);
+        System.out.println(action + " " + printedType + ": seqnum = " + seqnum);
     }
 }
