@@ -1,5 +1,6 @@
 package sender;
 
+import jdk.swing.interop.SwingInterOpUtils;
 import shared.*;
 
 import java.io.*;
@@ -143,6 +144,7 @@ public class Sender {
         // keeps only a single TimerTask as TCP only use a single timer for the oldest packet
         Timer timer = new Timer();
         boolean timerStarted = false;
+        boolean EOTStage = false;
 
         lock.lock();
         // at the beginning
@@ -175,7 +177,7 @@ public class Sender {
 
         while (true) {
             // TODO: the position of this lock. Could socket receive be interrupted?
-            // receive actions
+            /* receive actions */
             Packet ackPacket = udpUtility.receivePacket();
             lock.lock();
             // inc timestamp upon receive
@@ -214,37 +216,65 @@ public class Sender {
 
                 // Thread.sleep(1);
 
+                // if all packets have been acked
+                if (EOTStage && packets.isEmpty()) {
+                    // send EOT to the receiver
+                    udpUtility.sendPacket(new Packet(Constant.EOT, 0, 0, null));
+                    break;
+                }
+
                 lock.lock();
-                // send actions: check if the window if full
+                /* send actions: check if the window if full */
                 // sent but unacked packets remain in the window, only send newly added packets within the window
                 // resend only appears upon timeout
                 if (packets.size() < N) {
-                    int sendNum = N - packets.size();
-                    List<Packet> newlyAddedPackets = new ArrayList<>(sendNum);
-                    // int[] seqNums = new int[sendNum];
-                    for (int i = 0; i < sendNum; ++i) {
-                        Packet packet = reader.getNextPacket();
-                        newlyAddedPackets.add(packet);
-                        packets.add(packet);
-                    }
-                    for (int i = 0; i < sendNum; ++i) {
-                        udpUtility.sendPacket(newlyAddedPackets.get(i));
-                        // inc timestamp upon send
-                        timestamp.incrementAndGet();
-                        // log the send action
-                        seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
+                    if (!EOTStage) {
+                        int sendNum = N - packets.size();
+                        List<Packet> newlyAddedPackets = new ArrayList<>(sendNum);
+                        // int[] seqNums = new int[sendNum];
+                        for (int i = 0; i < sendNum; ++i) {
+                            try {
+                                Packet packet = reader.getNextPacket();
+                                newlyAddedPackets.add(packet);
+                                packets.add(packet);
+                            } catch (EOFException e) {
+                                EOTStage = true;
+                                sendNum = i;
+                            }
+                        }
+                        for (int i = 0; i < sendNum; ++i) {
+                            udpUtility.sendPacket(newlyAddedPackets.get(i));
+                            // inc timestamp upon send
+                            timestamp.incrementAndGet();
+                            // log the send action
+                            seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
 
-                        // if i = 0 and timer not started, start timer
-                        if (i == 0) {
-                            // if (timerStarted) { timer.cancel(); }
-                            timer.cancel();
-                            timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                            timerStarted = true;
+                            // if i = 0 and timer not started, start timer
+                            if (i == 0) {
+                                // if (timerStarted) { timer.cancel(); }
+                                timer.cancel();
+                                timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                                timerStarted = true;
+                            }
                         }
                     }
+                } else {
+                    // start timer
+                    // if (timerStarted) { timer.cancel(); }
+                    timer.cancel();
+                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                    timerStarted = true;
                 }
             }
             lock.unlock();
+        }
+
+        // wait for receiver's EOT
+        Packet ackPacket = udpUtility.receivePacket();
+        if (ackPacket.getType() == Constant.EOT) {
+            // for [debug]
+            System.out.println("Sender receives EOT from the receiver!");
+            // System.exit(0);
         }
     }
 
