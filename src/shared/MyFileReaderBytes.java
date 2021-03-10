@@ -29,7 +29,7 @@ public class MyFileReaderBytes {
     }
 
     public Packet getNextPacket() throws IOException {
-        seqNum = (seqNum + 1) % Constant.MODULO;
+        seqNum = (seqNum + 1 + Constant.MODULO) % Constant.MODULO;
 
         byte[] buffer = new byte[Constant.MAX_DATA_PACKET_SIZE];
 

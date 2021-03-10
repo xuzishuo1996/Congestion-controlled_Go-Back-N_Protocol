@@ -92,11 +92,11 @@ public class Receiver {
                     // ack
                     udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
                     // update window
-                    rcvBase = (rcvBase + 1) % Constant.MODULO;
+                    rcvBase = (rcvBase + 1 + Constant.MODULO) % Constant.MODULO;
                 }
             } else {    // type == Constant.EOT
                 // has acked all segments
-                if (rcvSeqNum == rcvBase - 1) {
+                if (rcvSeqNum == (rcvBase - 1 + Constant.MODULO) % Constant.MODULO) {
                     udpUtility.sendPacket(new Packet(Constant.EOT, rcvBase - 1, 0, null));
                     System.out.println("[Receiver] has received all packets!");
 
