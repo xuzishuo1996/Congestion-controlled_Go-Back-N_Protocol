@@ -13,6 +13,6 @@
 #            per line, e.g. receiving Packet seqnum /ACK seqnum , discarding Packet seqnum /ACK seqnum,
 #            forwarding Packet seqnum /ACK seqnum ).
 
-# Example: $ nEmulator 9991 host2 9994 9993 host3 9992 1 0.2 0
+# Example: $ ./nEmulator 9991 host2 9994 9993 host3 9992 1 0.2 0
 
 java -cp target emulator.Emulator $1 $2 $3 $4 $5 $6 $7 $8 $9

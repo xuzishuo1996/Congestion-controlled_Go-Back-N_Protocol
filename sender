@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Format of invocation:
-#     sender <nEmulator address> <UDP port number 1> <UDP port number 2> <timeout> <filename>
+#     ./sender <nEmulator address> <UDP port number 1> <UDP port number 2> <timeout> <filename>
 # Detailed explanation of args:
 #     1. <host address of the network emulator> (hostname)
 #     2. <UDP port number used by the emulator to receive data from the sender>
@@ -9,6 +9,6 @@
 #     4. <timeout interval in units of millisecond>
 #     5. <name of the file to be transferred> in the given order.
 
-# Example: $ sender host1 9991 9992 50 ~/Waterloo/cs656-docs/a2/data/input/input1.txt
+# Example: $ ./sender host1 9991 9992 50 ~/Waterloo/cs656-docs/a2/data/input/input1.txt
 
 java -cp target sender.Sender $1 $2 $3 $4 $5
