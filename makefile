@@ -11,7 +11,7 @@ emulator_src = $(SRC_DIR)/emulator/Emulator.java
 receiver_src = $(SRC_DIR)/receiver/Receiver.java
 sender_src = $(SRC_DIR)/sender/Sender.java
 
-all: Emulator Receiver Sender
+all: Emulator Receiver Sender scripts
 
 Emulator: $(emulator_src)
 	$(JC) $(JFLAGS) $(emulator_src)
@@ -21,6 +21,11 @@ Receiver: $(receiver_src)
 
 Sender: $(sender_src)
 	$(JC) $(JFLAGS) $(sender_src)
+
+scripts:
+	chmod +x Emulator
+	chmod +x Receiver
+	chmod +x Sender
 
 # .PHONY tells makefile to treat clean as a command
 .PHONY: clean
