@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Format of invocation:
+#     receiver <nEmulator address> <UDP port number 1> <UDP port number 2> <filename>
+# Detailed explanation of args:
+#     1. <hostname for the network emulator>
+#     2. <UDP port number used by the link emulator to receive ACKs from the receiver>
+#     3. <UDP port number used by the receiver to receive data from the emulator>
+#     4. <name of the file into which the received data is written>
+
+# Example: $ receiver host1 9993 9994 ~/Waterloo/cs656-docs/a2/data/output/output1.txt
+
+java -cp target receiver.Receiver $1 $2 $3 $4
