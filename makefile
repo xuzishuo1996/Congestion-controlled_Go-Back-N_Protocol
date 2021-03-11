@@ -23,9 +23,9 @@ Sender: $(sender_src)
 	$(JC) $(JFLAGS) $(sender_src)
 
 scripts:
-	chmod +x Emulator
-	chmod +x Receiver
-	chmod +x Sender
+	chmod +x nEmulator
+	chmod +x receiver
+	chmod +x sender
 
 # .PHONY tells makefile to treat clean as a command
 .PHONY: clean
