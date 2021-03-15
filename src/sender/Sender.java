@@ -153,7 +153,8 @@ public class Sender {
             try {
                 Packet packet = reader.getNextPacket();
                 packets.add(packet);
-                System.out.println(packet.getData());
+                System.out.println("i = " + i);
+                // System.out.println(packet.getData());
             } catch (EOFException e) {  // EOT
                 // TODO: EOT handling
                 EOTStage = true;

@@ -51,13 +51,13 @@ public class Packet {
         //System.out.println("type: " + type);
         buffer.putInt(seqNum);
         //System.out.println("seqNum: " + seqNum);
-        buffer.putInt(data.length());
+        buffer.putInt(length);
         //System.out.println("data.length(): " + data.length());
         //System.out.println("length: " + length);
         if (length > 0) {
             // This method transfers bytes into this buffer from the given source array.
             //System.out.println("data.getBytes().length: " + data.getBytes().length);
-            buffer.put(data.getBytes(), 0, data.length() * Constant.SIZE_OF_CHAR);
+            buffer.put(data.getBytes(), 0, length * Constant.SIZE_OF_CHAR);
         }
         //System.out.println("buffer.array().length: " + buffer.array().length);
         return buffer.array();
