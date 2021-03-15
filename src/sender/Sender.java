@@ -143,6 +143,7 @@ public class Sender {
         // keeps only a single TimerTask as TCP only use a single timer for the oldest packet
         Timer timer = new Timer();
         boolean timerStarted = false;
+        // represents that all packets have been sent once (but may or may not acked)
         boolean EOTStage = false;
 
         lock.lock();
@@ -155,6 +156,7 @@ public class Sender {
                 System.out.println(packet.getData());
             } catch (EOFException e) {  // EOT
                 // TODO: EOT handling
+                EOTStage = true;
                 break;
             }
         }
