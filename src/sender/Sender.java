@@ -152,6 +152,7 @@ public class Sender {
             try {
                 Packet packet = reader.getNextPacket();
                 packets.add(packet);
+                System.out.println(packet.getData());
             } catch (EOFException e) {  // EOT
                 // TODO: EOT handling
                 break;
@@ -173,6 +174,8 @@ public class Sender {
             }
         }
         lock.unlock();
+
+        System.out.println("Sender: initial packets sent!");
 
         while (true) {
             // TODO: the position of this lock. Could socket receive be interrupted?
