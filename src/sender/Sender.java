@@ -204,6 +204,7 @@ public class Sender {
                     // restart timer
                     // if (timerStarted) { timer.cancel(); }
                     timer.cancel();
+                    timer = new Timer();
                     timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
                     timerStarted = true;
                 }
@@ -258,6 +259,7 @@ public class Sender {
                             if (i == 0) {
                                 // if (timerStarted) { timer.cancel(); }
                                 timer.cancel();
+                                timer = new Timer();
                                 timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
                                 timerStarted = true;
                             }
@@ -267,6 +269,7 @@ public class Sender {
                     // start timer
                     // if (timerStarted) { timer.cancel(); }
                     timer.cancel();
+                    timer = new Timer();
                     timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
                     timerStarted = true;
                 }
