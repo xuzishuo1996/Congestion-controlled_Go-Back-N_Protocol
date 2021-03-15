@@ -64,7 +64,7 @@ public class Receiver {
                 new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/arrival.log")));
 
         // receive window: rcvBase is the next seq to be acked
-        // last acked: rcvBase - 1;
+        // last acked: (rcvBase - 1 + MODULO) % MODULO.
         int rcvBase = 0;
 
         UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
@@ -81,7 +81,8 @@ public class Receiver {
                 // the sequence number is NOT the one that it is expecting:
                 // discard the received packet and resend an ACK packet for the most recently received in-order packet.
                 if (rcvSeqNum != rcvBase) {
-                    udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase - 1, 0, null));
+                    udpUtility.sendPacket(new Packet(Constant.ACK,
+                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
                 }
                 // the sequence number is the one that it is expecting:
                 // write the newly received packet to the file and update the window
@@ -97,7 +98,8 @@ public class Receiver {
             } else {    // type == Constant.EOT
                 // has acked all segments
                 if (rcvSeqNum == (rcvBase - 1 + Constant.MODULO) % Constant.MODULO) {
-                    udpUtility.sendPacket(new Packet(Constant.EOT, rcvBase - 1, 0, null));
+                    udpUtility.sendPacket(new Packet(Constant.EOT,
+                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
                     System.out.println("[Receiver] has received all packets!");
 
                     arrivalLog.close();
@@ -106,7 +108,8 @@ public class Receiver {
                 }
                 // has segments not been acked
                 else {
-                    udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase - 1, 0, null));
+                    udpUtility.sendPacket(new Packet(Constant.ACK,
+                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
                 }
             }
         }

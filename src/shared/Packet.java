@@ -51,6 +51,7 @@ public class Packet {
         //System.out.println("type: " + type);
         buffer.putInt(seqNum);
         //System.out.println("seqNum: " + seqNum);
+        // length is ok？ or have to be data.length() and judge whether data == null?
         buffer.putInt(length);
         //System.out.println("data.length(): " + data.length());
         //System.out.println("length: " + length);
