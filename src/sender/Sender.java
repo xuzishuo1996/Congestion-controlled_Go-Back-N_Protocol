@@ -149,6 +149,7 @@ public class Sender {
         lock.lock();
         // at the beginning
         // get initial packets
+        System.out.println("N = " + N + " before sending the first packet");
         for (int i = 0; i < N; ++i) {
             try {
                 Packet packet = reader.getNextPacket();
@@ -167,6 +168,7 @@ public class Sender {
             udpUtility.sendPacket(packet);
             // inc timestamp upon send
             timestamp.incrementAndGet();
+            System.out.println("t=" + timestamp + " " + packet.getSeqNum() + " in sending initial packets");
             // log the send action
             seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
             // start the timer for the oldest packet
@@ -321,7 +323,7 @@ public class Sender {
                 e.printStackTrace();
             }
             // log resend: do not inc timestamp here
-            seqLog.println("t=" + packetToResend.getSeqNum() + " " + N);
+            seqLog.println("t=" + timestamp + " " + packetToResend.getSeqNum());
             // start the timer
             timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
             lock.unlock();

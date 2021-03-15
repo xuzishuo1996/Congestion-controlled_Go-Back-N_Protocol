@@ -33,7 +33,13 @@ public class UDPUtility {
     }
 
     public void sendPacket(Packet packet) throws IOException {
-        byte[] sendBytes = packet.toUDPBytes();
+        byte[] sendBytes = null;
+        try {
+            sendBytes = packet.toUDPBytes();
+        } catch (NullPointerException e) {  // for the case: sender has received EOT from receiver
+            // sender exit
+            System.exit(0);
+        }
         DatagramPacket sendPacket = new DatagramPacket(sendBytes, sendBytes.length, IPAddress, sPort);
         sendDatagramSocket.send(sendPacket);
     }

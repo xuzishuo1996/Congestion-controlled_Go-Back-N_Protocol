@@ -74,8 +74,10 @@ public class Receiver {
             // see the seq number and check whether write to file and send ack, or resend prev acks
             int type = dataPacket.getType();
             int rcvSeqNum = dataPacket.getSeqNum();
+            System.out.println("rcvSeqNum: " + rcvSeqNum);
             if (type == Constant.DATA) {
                 // log
+                System.out.println("Receiver receive data!");
                 arrivalLog.println(rcvSeqNum);
 
                 // the sequence number is NOT the one that it is expecting:
@@ -88,7 +90,7 @@ public class Receiver {
                 // write the newly received packet to the file and update the window
                 else {
                     // write to file
-                    System.out.println("[Get Data]: " + dataPacket.getData());
+                    // System.out.println("[Get Data]: " + dataPacket.getData());
                     writer.write(dataPacket.getData());
                     // ack
                     udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
@@ -97,6 +99,8 @@ public class Receiver {
                 }
             } else {    // type == Constant.EOT
                 // has acked all segments
+                System.out.println();
+
                 if (rcvSeqNum == (rcvBase - 1 + Constant.MODULO) % Constant.MODULO) {
                     udpUtility.sendPacket(new Packet(Constant.EOT,
                             (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
@@ -108,6 +112,8 @@ public class Receiver {
                 }
                 // has segments not been acked
                 else {
+                    System.out.println("[Receiver] has received EOT but some packets unreceived!");
+
                     udpUtility.sendPacket(new Packet(Constant.ACK,
                             (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
                 }
