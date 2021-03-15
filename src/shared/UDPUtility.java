@@ -39,7 +39,7 @@ public class UDPUtility {
     }
 
     public Packet receivePacket() throws IOException {
-        byte[] receivedBytes = new byte[Constant.MAX_DATA_PACKET_SIZE];
+        byte[] receivedBytes = new byte[Constant.MAX_PACKET_SIZE];
         DatagramPacket receivePacket = new DatagramPacket(receivedBytes, receivedBytes.length);
         receiveDatagramSocket.receive(receivePacket);
         return Packet.parsePacket(receivedBytes);

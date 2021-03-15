@@ -18,7 +18,7 @@ public class MyFileReaderBytes {
     }
 
     public byte[] getNextSegment() throws IOException {
-        byte[] buffer = new byte[Constant.MAX_DATA_PACKET_SIZE];
+        byte[] buffer = new byte[Constant.MAX_PACKET_SIZE];
 
         int byteCnt = bufferedInputStream.read(buffer);
         if (byteCnt != -1) {
@@ -35,7 +35,7 @@ public class MyFileReaderBytes {
     public Packet getNextPacket() throws IOException {
         seqNum = (seqNum + 1 + Constant.MODULO) % Constant.MODULO;
 
-        byte[] buffer = new byte[Constant.MAX_DATA_PACKET_SIZE];
+        byte[] buffer = new byte[Constant.MAX_PAYLOAD_SIZE];
 
         int byteCnt = bufferedInputStream.read(buffer);
         if (byteCnt != -1) {

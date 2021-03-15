@@ -1,17 +1,31 @@
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class TestFunc {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) throws InterruptedException, UnsupportedEncodingException {
 //        // https://stackoverflow.com/questions/23068676/how-to-get-current-timestamp-in-string-format-in-java-yyyy-mm-dd-hh-mm-ss
 //        String timestamp = new SimpleDateFormat("yyyy.MM.dd - HH:mm:ss").format(new Date());
 //        System.out.println(timestamp);
-        Timer timer = new Timer();
-        int timeout = 3000;
-        timer.schedule(new TimeoutTask(timer, timeout), timeout);
+
+//        Timer timer = new Timer();
+//        int timeout = 3000;
+//        timer.schedule(new TimeoutTask(timer, timeout), timeout);
         // Thread.sleep(timeout - 1);
         // timer.cancel(); // will not cancel if sleep 3000 msec because the task is executing; will cancel if sleep 2999
         // timer.purge();      // will also cancel the executing task
+
+        // String s1 = "adasfasfasfasfas\n\n";
+        String s1 = "xASFAF*&/\n\n";
+        System.out.println(s1.length());
+        byte[] bytes1 = s1.getBytes(StandardCharsets.UTF_8);
+        System.out.println(bytes1.length);
+        System.out.println(s1);
+        for (byte b: bytes1) {
+            System.out.print(b);
+        }
+        System.out.println();
     }
 
     static class TimeoutTask extends TimerTask {

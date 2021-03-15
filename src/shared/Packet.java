@@ -3,10 +3,10 @@ package shared;
 import java.nio.ByteBuffer;
 
 public class Packet {
-    private int type;       // 0: ACK, 1: Data, 2: EOT
-    private int seqNum;     // Modulo 32
-    private int length;     // Length of the String variable ‘data’; for ACK, it should be set to 0
-    private String data;    // String with Max Length: 500 chars
+    private final int type;       // 0: ACK, 1: Data, 2: EOT
+    private final int seqNum;     // Modulo 32
+    private final int length;     // Length of the String variable ‘data’; for ACK, it should be set to 0
+    private final String data;    // String with Max Length: 500 chars
 
     public int getType() {
         return type;
@@ -39,20 +39,27 @@ public class Packet {
         String data = null;
         if (length > 0) {
             byte[] tmp = new byte[length * Constant.SIZE_OF_CHAR];
-            buffer.get(tmp, 0, length);
+            buffer.get(tmp, 0, length * Constant.SIZE_OF_CHAR);
             data = new String(tmp);
         }
         return new Packet(type, seqNum, length, data);
     }
 
     public byte[] toUDPBytes() {
-        ByteBuffer buffer = ByteBuffer.allocate(Constant.MAX_DATA_PACKET_SIZE);
+        ByteBuffer buffer = ByteBuffer.allocate(Constant.MAX_PACKET_SIZE);
         buffer.putInt(type);
+        //System.out.println("type: " + type);
         buffer.putInt(seqNum);
-        buffer.putInt(length);
+        //System.out.println("seqNum: " + seqNum);
+        buffer.putInt(data.length());
+        //System.out.println("data.length(): " + data.length());
+        //System.out.println("length: " + length);
         if (length > 0) {
-            buffer.put(data.getBytes(), 0, length * Constant.SIZE_OF_CHAR);
+            // This method transfers bytes into this buffer from the given source array.
+            //System.out.println("data.getBytes().length: " + data.getBytes().length);
+            buffer.put(data.getBytes(), 0, data.length() * Constant.SIZE_OF_CHAR);
         }
+        //System.out.println("buffer.array().length: " + buffer.array().length);
         return buffer.array();
     }
 }
