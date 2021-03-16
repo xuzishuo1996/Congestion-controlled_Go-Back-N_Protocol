@@ -7,7 +7,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 
 public class MyFileReaderBytes {
-    private static final int MAX_SEGMENT_LENGTH = Constant.MAX_SEGMENT_LENGTH;
+    private static final int MAX_SEGMENT_LENGTH = Constant.MAX_STRING_LENGTH;
     private int seqNum = -1;
 
     // BufferedInputStream read raw bytes, whereas BufferedReader read characters

@@ -26,7 +26,7 @@ public class Sender {
     static int rPort = 0;
     static int timeout = 0;    // in millisecond
     static String filename = null;
-    static BufferedInputStream reader = null;
+    static BufferedReader reader = null;
 
     /*
      * command line input includes the following:
@@ -42,14 +42,6 @@ public class Sender {
             System.err.println("Invalid number of arguments. Should specify 5 args.");
             System.exit(-1);
         }
-
-//        InetAddress emulatorAddress = null;
-//        int sPort = 0;
-//        int rPort = 0;
-//        int timeout = 0;    // in millisecond
-//        String filename = null;
-//        BufferedInputStream reader = null;
-        //BufferedReader reader = null;
 
         try {
             emulatorAddress = InetAddress.getByName(args[0]);
@@ -81,7 +73,7 @@ public class Sender {
         System.out.println("timeout is " + timeout);
         filename = args[4];
         try {
-            reader = new BufferedInputStream(new FileInputStream(filename));
+            reader = new BufferedReader(new FileReader(filename));
             //reader = new BufferedReader(new FileReader(filename));
         } catch (FileNotFoundException e) {
             System.err.println("Error: file not found!");
@@ -90,8 +82,7 @@ public class Sender {
         System.out.println("filename is " + filename);
 
         // create input file reader
-        MyFileReaderBytes myFileReaderBytes = new MyFileReaderBytes(reader);
-        //MyFileReaderString myFileReaderString = new MyFileReaderString(reader);
+        MyFileReaderString myFileReaderString = new MyFileReaderString(reader);
 
         // set the output log files: in src/ folder
         PrintStream seqLog = new PrintStream(
@@ -103,21 +94,8 @@ public class Sender {
 
         UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
 
-//        // TODO: seqNum
-//        int seqNum = 0;
-//        Packet currPacket = myFileReaderBytes.getNextPacket();
-//        udpUtility.sendPacket(currPacket);
-//        // ++timestamp;
-//        timestamp.incrementAndGet();
-//        seqLog.println("t=" + timestamp + " " + seqNum);
-//
-//        Packet ack = udpUtility.receivePacket();
-//        // ++timestamp;
-//        timestamp.incrementAndGet();
-//        ackLog.println("t=" + timestamp + " " + ack.getSeqNum());
-
         try {
-            sendHelper(myFileReaderBytes, udpUtility, timeout, seqLog, ackLog, nLog);
+            sendHelper(myFileReaderString, udpUtility, timeout, seqLog, ackLog, nLog);
         } finally {
             seqLog.close();
             ackLog.close();
@@ -126,14 +104,14 @@ public class Sender {
         }
     }
 
-    /* TODO: need lock in timer task and sender task for N
+    /* need lock in timer task and sender task for N
         timeout task:
             1. inc timestamp and log
             2. resend and log
             3. dec window
          EOT
      */
-    public static void sendHelper(MyFileReaderBytes reader, UDPUtility udpUtility, int timeout,
+    public static void sendHelper(MyFileReaderString reader, UDPUtility udpUtility, int timeout,
                                   PrintStream seqLog, PrintStream ackLog, PrintStream nLog)
             throws IOException, InterruptedException {
         // packets in the send-window
@@ -330,42 +308,6 @@ public class Sender {
             // start the timer
             timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
             lock.unlock();
-        }
-    }
-
-
-
-
-
-
-    static class SenderSendTask implements Runnable {
-        private final ConcurrentLinkedDeque<Packet> packets;
-
-        SenderSendTask(ConcurrentLinkedDeque<Packet> packets) {
-            this.packets = packets;
-        }
-
-        @Override
-        public void run() {
-
-            while (true) {
-                if (packets.size() < N) {
-
-                }
-            }
-        }
-    }
-
-    static class SenderReceiveTask implements Runnable {
-        private final ConcurrentLinkedDeque<Packet> packets;
-
-        SenderReceiveTask(ConcurrentLinkedDeque<Packet> packets) {
-            this.packets = packets;
-        }
-
-        @Override
-        public void run() {
-
         }
     }
 }

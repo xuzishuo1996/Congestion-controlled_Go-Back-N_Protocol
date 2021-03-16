@@ -1,11 +1,14 @@
 package sender;
 
 import shared.Constant;
+import shared.Packet;
 
 import java.io.*;
 
 public class MyFileReaderString {
-    private static final int MAX_SEGMENT_LENGTH = Constant.MAX_SEGMENT_LENGTH;
+    private static final int MAX_SEGMENT_LENGTH = Constant.MAX_STRING_LENGTH;
+    private int seqNum = -1;
+
     // BufferedInputStream read raw bytes, whereas BufferedReader read characters
     private final BufferedReader bufferedReader;
 
@@ -20,6 +23,23 @@ public class MyFileReaderString {
         if (charCnt != -1) {
             // need charCnt in case the number of chars < MAX_SEGMENT_LENGTH
             return String.valueOf(buffer,0, charCnt);
+        } else {
+            bufferedReader.close();
+            // signal eof
+            throw new EOFException("End of input file!");
+        }
+    }
+
+    public Packet getNextPacket() throws IOException {
+        seqNum = (seqNum + 1 + Constant.MODULO) % Constant.MODULO;
+
+        char[] buffer = new char[MAX_SEGMENT_LENGTH];
+
+        int charCnt = bufferedReader.read(buffer);
+        if (charCnt != -1) {
+            // need charCnt in case the number of chars < MAX_SEGMENT_LENGTH
+            String data = String.valueOf(buffer,0, charCnt);
+            return new Packet(Constant.DATA, seqNum, data.length(), data);
         } else {
             bufferedReader.close();
             // signal eof
