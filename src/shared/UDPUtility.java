@@ -48,7 +48,12 @@ public class UDPUtility {
         byte[] receivedBytes = new byte[Constant.MAX_PACKET_SIZE];
         DatagramPacket receivePacket = new DatagramPacket(receivedBytes, receivedBytes.length);
         receiveDatagramSocket.receive(receivePacket);
-        return Packet.parsePacket(receivedBytes);
+        // return Packet.parsePacket(receivedBytes);
+
+        int actualLength = receivePacket.getLength();
+        byte[] actualBytes = new byte[actualLength];
+        System.arraycopy(receivedBytes, 0, actualBytes, 0, actualLength);
+        return Packet.parsePacket(actualBytes);
     }
 
     /*

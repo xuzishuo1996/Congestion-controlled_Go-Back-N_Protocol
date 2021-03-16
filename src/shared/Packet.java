@@ -36,13 +36,16 @@ public class Packet {
 
     public static Packet parsePacket(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        // System.out.println("[parsePacket]: limit = " + buffer.limit() + " remaining = "  + buffer.remaining() + " capacity = " + buffer.capacity());
         int type = buffer.getInt();
         int seqNum = buffer.getInt();
         int length = buffer.getInt();
         String data = null;
         if (length > 0) {
-            byte[] tmp = new byte[length * Constant.SIZE_OF_CHAR];
-            buffer.get(tmp, 0, length * Constant.SIZE_OF_CHAR);
+//            byte[] tmp = new byte[length * Constant.SIZE_OF_CHAR];
+//            buffer.get(tmp, 0, length * Constant.SIZE_OF_CHAR);
+            byte[] tmp = new byte[bytes.length - Constant.PACKET_HEADER_SIZE];
+            buffer.get(tmp, 0, tmp.length);
             data = new String(tmp);
         }
         return new Packet(type, seqNum, length, data);
@@ -58,35 +61,69 @@ public class Packet {
         buffer.putInt(length);
         //System.out.println("data.length(): " + data.length());
         //System.out.println("length: " + length);
+
+        byte[] dataBytes = null;
         if (length > 0) {
-            // This method transfers bytes into this buffer from the given source array.
-            //System.out.println("data.getBytes().length: " + data.getBytes().length);
-            buffer.put(data.getBytes(Constant.ENCODING), 0, length * Constant.SIZE_OF_CHAR);
+             dataBytes = data.getBytes(Constant.ENCODING);
+             // This method transfers bytes into this buffer from the given source array.
+             // System.out.println("data.getBytes().length: " + data.getBytes().length);
+             buffer.put(dataBytes, 0, dataBytes.length);
+//            buffer.put(data.getBytes(Constant.ENCODING), 0, length * Constant.SIZE_OF_CHAR);
         }
-        //System.out.println("buffer.array().length: " + buffer.array().length);
-        return buffer.array();
+        // System.out.println("buffer.array().length: " + buffer.array().length);
+        byte[] src = buffer.array();
+        int dataLength = (dataBytes == null) ? 0 : dataBytes.length;
+        int packetLength = Constant.PACKET_HEADER_SIZE + dataLength;
+        byte[] des = new byte[packetLength];
+        System.arraycopy(src, 0, des, 0, packetLength);
+        return des;
     }
 
     public static void main(String[] args) throws IOException {
-        BufferedReader reader = new BufferedReader(
-                new FileReader("/home/xuzishuo1996/Waterloo/cs656-docs/a2/data/input/input2.txt"));
-        // 1 20 394 (384?)
-        // 26384 characters, 26394 words
-        MyFileReaderString myFileReader = new MyFileReaderString(reader);
 
-        try {
-            while (true) {
-                Packet packet = myFileReader.getNextPacket();
-                byte[] bytes = packet.toUDPBytes();
-                Packet back = Packet.parsePacket(bytes);
-                System.out.println(back.getType());
-                System.out.println(back.getSeqNum());
-                System.out.println(back.getLength());
-                System.out.println(back.getData());
-            }
-        } catch (EOFException ignored) {
+//        ByteBuffer buffer = ByteBuffer.allocate(512);
+//        buffer.putInt(1);
+//        buffer.putInt(2);
+//        String data = "1234567890abcdefghj";
+//        buffer.putInt(data.length());
+//        byte[] bytes = data.getBytes(Constant.ENCODING);
+//        buffer.put(bytes, 0, bytes.length);
+//
+//        System.out.println("buffer.limit(): " + buffer.limit());
+//        System.out.println("buffer.remaining(): " + buffer.remaining());
 
-        }
+        String data = "1234567890abcdefghj";
+        Packet initialPacket = new Packet(1, 2, data.length(), data);
+        byte[] UDPBytes = initialPacket.toUDPBytes();
+        System.out.println("converted bytes length: " + UDPBytes.length);
+
+        Packet packet = Packet.parsePacket(UDPBytes);
+        System.out.println(packet.getType());
+        System.out.println(packet.getSeqNum());
+        System.out.println(packet.getLength());
+        System.out.println(packet.getData());
+
+
+
+//        BufferedReader reader = new BufferedReader(
+//                new FileReader("/home/xuzishuo1996/Waterloo/cs656-docs/a2/data/input/input2.txt"));
+//        // 1 20 394 (384?)
+//        // 26384 characters, 26394 words
+//        MyFileReaderString myFileReader = new MyFileReaderString(reader);
+//
+//        try {
+//            while (true) {
+//                Packet packet = myFileReader.getNextPacket();
+//                byte[] bytes = packet.toUDPBytes();
+//                Packet back = Packet.parsePacket(bytes);
+//                System.out.println(back.getType());
+//                System.out.println(back.getSeqNum());
+//                System.out.println(back.getLength());
+//                System.out.println(back.getData());
+//            }
+//        } catch (EOFException ignored) {
+//
+//        }
 
 //        String data1 = "12311'sfa \n adcfc";
 //        System.out.println(data1.length());

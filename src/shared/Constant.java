@@ -8,7 +8,7 @@ public class Constant {
     public static int MODULO = 32;
 
     public static int SIZE_OF_INT = 4;  // measured in bytes
-    public static int SIZE_OF_CHAR = 1; // 1 for English characters
+    public static int SIZE_OF_CHAR = 3; // 1 for English characters; max is 3
     public static int PACKET_HEADER_SIZE = SIZE_OF_INT * 3;    // measured in bytes; 3 ints in header.
     public static int ACK_SIZE = PACKET_HEADER_SIZE;
     public static int EOT_SIZE = PACKET_HEADER_SIZE;
