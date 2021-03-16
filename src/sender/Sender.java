@@ -301,6 +301,7 @@ public class Sender {
             timestamp.incrementAndGet();
             nLog.println("t=" + timestamp + " " + N);
             nLog.flush();
+            System.out.println("t=" + timestamp + " : timeout, N = 1 and re-transmit" );
             // retransmission
             Packet packetToResend = packets.peekFirst();
             try {

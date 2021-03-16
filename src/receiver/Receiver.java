@@ -94,8 +94,11 @@ public class Receiver {
                 // write the newly received packet to the file and update the window
                 else {
                     // write to file
-                    // System.out.println("[Get Data]: " + dataPacket.getData());
+                    //System.out.println("[Get Data]: " + dataPacket.getData());
+                    //System.out.println("\n=============================================\n");
                     writer.write(dataPacket.getData());
+                    // TODO: delete it when submit
+                    //writer.write("\n=============================================\n");
                     writer.flush();
                     // ack
                     udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
