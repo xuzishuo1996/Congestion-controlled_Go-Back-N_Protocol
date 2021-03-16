@@ -52,11 +52,34 @@ public class MyFileReaderString {
         // System.getProperty("java.class.path")    // class path
         // System.getProperty("user.dir")           // src path
         // /home/xuzishuo1996/Waterloo/cs656-repos/a2/input1.txt
-        BufferedReader reader = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/input1.txt"));
+
+//        // pass
+//        BufferedReader reader = new BufferedReader(
+//                new FileReader("/home/xuzishuo1996/Waterloo/cs656-docs/a2/data/input/input1.txt"));
+//        MyFileReaderString myFileReader = new MyFileReaderString(reader);
+//
+//        PrintStream log = new PrintStream(
+//                new BufferedOutputStream(
+//                        new FileOutputStream("/home/xuzishuo1996/Waterloo/cs656-docs/a2/data/output/test1.txt")));
+//        try{
+//            while (true) {
+//                log.print(myFileReader.getNextSegment());
+//                log.flush();
+//            }
+//        } catch (EOFException e) {
+//            System.out.println("has read the file.");
+//        }
+
+        // pass
+        BufferedReader reader = new BufferedReader(
+                new FileReader("/home/xuzishuo1996/Waterloo/cs656-docs/a2/data/input/input1.txt"));
         MyFileReaderString myFileReader = new MyFileReaderString(reader);
+        BufferedWriter writer = new BufferedWriter(
+                new FileWriter("/home/xuzishuo1996/Waterloo/cs656-docs/a2/data/output/test1.txt"));
         try{
             while (true) {
-                System.out.println(myFileReader.getNextSegment());
+                writer.write(myFileReader.getNextSegment());
+                writer.flush(); // have to flush
             }
         } catch (EOFException e) {
             System.out.println("has read the file.");

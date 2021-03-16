@@ -96,6 +96,7 @@ public class Receiver {
                     // write to file
                     // System.out.println("[Get Data]: " + dataPacket.getData());
                     writer.write(dataPacket.getData());
+                    writer.flush();
                     // ack
                     udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
                     // update window
