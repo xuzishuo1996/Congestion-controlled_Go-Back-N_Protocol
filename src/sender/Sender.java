@@ -160,6 +160,7 @@ public class Sender {
         lock.unlock();
 
         System.out.println("Sender: initial packets sent!");
+        System.out.println("N = " + N + " after initial packets sent");
 
         while (true) {
             // TODO: the position of this lock. Could socket receive be interrupted?
@@ -278,7 +279,7 @@ public class Sender {
         private final UDPUtility udpUtility;
         private final PrintStream nLog;
         private final PrintStream seqLog;
-        private final Timer timer;
+        private Timer timer;
         private final int timeout;
 
         TimeoutTask(ConcurrentLinkedDeque<Packet> packets, UDPUtility udpUtility, PrintStream nLog, PrintStream seqLog, Timer timer, int timeout) {
@@ -312,6 +313,7 @@ public class Sender {
             seqLog.println("t=" + timestamp + " " + packetToResend.getSeqNum());
             seqLog.flush();
             // start the timer
+            timer = new Timer();
             timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
             lock.unlock();
         }
