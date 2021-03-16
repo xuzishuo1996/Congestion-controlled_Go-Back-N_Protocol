@@ -102,13 +102,15 @@ public class Receiver {
                 System.out.println();
 
                 if (rcvSeqNum == (rcvBase - 1 + Constant.MODULO) % Constant.MODULO) {
+                    // not coming in here, but sender get EOT, weird
+                    System.out.println("[Receiver] has received all packets!");
                     udpUtility.sendPacket(new Packet(Constant.EOT,
                             (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
                     System.out.println("[Receiver] has received all packets!");
 
                     arrivalLog.close();
                     writer.close();
-                    System.exit(1);
+                    System.exit(0);
                 }
                 // has segments not been acked
                 else {

@@ -197,6 +197,7 @@ public class Sender {
             lock.unlock();
 
             // Thread.sleep(1);
+            System.out.println("[After sender receiving] Now N = " + N);
 
             // check if ack seqNum fall within the sending window
             lock.lock();
@@ -217,6 +218,7 @@ public class Sender {
                 // inc the sending window size
                 if (N < 10) {
                     ++N;
+                    System.out.println("inc N, now N = " + N);
                     // log: do not inc timestamp here
                     nLog.println("t=" + timestamp + " " + N);
                 }
@@ -228,6 +230,7 @@ public class Sender {
                 if (EOTStage && packets.isEmpty()) {
                     // send EOT to the receiver
                     udpUtility.sendPacket(new Packet(Constant.EOT, 0, 0, null));
+                    System.out.println("Sender EOT sent!");
                     break;
                 }
 
