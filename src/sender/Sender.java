@@ -149,6 +149,7 @@ public class Sender {
             System.out.println("t=" + timestamp + " " + packet.getSeqNum() + " in sending initial packets");
             // log the send action
             seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
+            seqLog.flush();
             // start the timer for the oldest packet
             if (isFirst) {
                 timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
@@ -169,6 +170,7 @@ public class Sender {
             timestamp.incrementAndGet();
             // log the ack action
             ackLog.println("t=" + timestamp + " " + ackPacket.getSeqNum());
+            ackLog.flush();
 
             assert packets.peekFirst() != null;
             int oldestSeqNum = packets.peekFirst().getSeqNum();
@@ -199,6 +201,7 @@ public class Sender {
                     System.out.println("inc N, now N = " + N);
                     // log: do not inc timestamp here
                     nLog.println("t=" + timestamp + " " + N);
+                    nLog.flush();
                 }
                 lock.unlock();
 
@@ -237,6 +240,7 @@ public class Sender {
                             timestamp.incrementAndGet();
                             // log the send action
                             seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
+                            seqLog.flush();
 
                             // if i = 0 and timer not started, start timer
                             if (i == 0) {
@@ -295,6 +299,7 @@ public class Sender {
             // inc timestamp upon timeout
             timestamp.incrementAndGet();
             nLog.println("t=" + timestamp + " " + N);
+            nLog.flush();
             // retransmission
             Packet packetToResend = packets.peekFirst();
             try {
@@ -305,6 +310,7 @@ public class Sender {
             }
             // log resend: do not inc timestamp here
             seqLog.println("t=" + timestamp + " " + packetToResend.getSeqNum());
+            seqLog.flush();
             // start the timer
             timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
             lock.unlock();

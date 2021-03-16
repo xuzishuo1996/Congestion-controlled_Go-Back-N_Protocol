@@ -63,6 +63,9 @@ public class Receiver {
         PrintStream arrivalLog = new PrintStream(
                 new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/arrival.log")));
 
+//        arrivalLog.print("printed from the receiver at the beginning");
+//        arrivalLog.flush();
+
         // receive window: rcvBase is the next seq to be acked
         // last acked: (rcvBase - 1 + MODULO) % MODULO.
         int rcvBase = 0;
@@ -79,6 +82,7 @@ public class Receiver {
                 // log
                 System.out.println("Receiver receive data!");
                 arrivalLog.println(rcvSeqNum);
+                arrivalLog.flush();
 
                 // the sequence number is NOT the one that it is expecting:
                 // discard the received packet and resend an ACK packet for the most recently received in-order packet.
