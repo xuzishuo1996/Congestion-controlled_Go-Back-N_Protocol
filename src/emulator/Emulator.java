@@ -12,7 +12,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Emulator {
 //    static int fwdEmuRcvPort = 0;
@@ -25,9 +24,9 @@ public class Emulator {
 //    static double discardProbability = 0.0;
 //    static boolean verbose = true;
 
-    static UDPUtility receiverUtility;
+    // static UDPUtility receiverUtility;
 
-    static ReentrantLock lock = new ReentrantLock();
+    // static ReentrantLock lock = new ReentrantLock();
 
     /*
      * command line input includes the following:
@@ -124,16 +123,18 @@ public class Emulator {
         System.out.println("here!");
 
         UDPUtility senderUtility = new UDPUtility(backSenderRcvPort, fwdEmuRcvPort, senderAddress);
-        receiverUtility = new UDPUtility(fwdRcverRcvPort, backEmuRcvPort, receiverAddress);
+        UDPUtility receiverUtility = new UDPUtility(fwdRcverRcvPort, backEmuRcvPort, receiverAddress);
 
         // LinkedBlockingQueue is suitable for many producer (timed packets) and one consumer (emulator).
         LinkedBlockingQueue<Packet> forwardQueue = new LinkedBlockingQueue<>();
         LinkedBlockingQueue<Packet> backwardQueue = new LinkedBlockingQueue<>();
 
         // start receive ACK from receiver task
-        new Thread(new ReceiveTask(receiverUtility, backwardQueue, discardProbability, maxDelay, verbose, "backward")).start();
+        new Thread(new ReceiveTask(receiverUtility, backwardQueue, discardProbability, maxDelay, verbose,
+                senderUtility, "backward")).start();
         // start receive DATA from sender task
-        new Thread(new ReceiveTask(senderUtility, forwardQueue, discardProbability, maxDelay, verbose, "forward")).start();
+        new Thread(new ReceiveTask(senderUtility, forwardQueue, discardProbability, maxDelay, verbose,
+                receiverUtility, "forward")).start();
         // start send DATA to receiver task
         new Thread(new SendTask(receiverUtility, forwardQueue, verbose, "forward")).start();
         // start send ACK to sender task
@@ -180,15 +181,17 @@ public class Emulator {
         private final double discardProbability;
         private final int maxDelay;
         private final boolean verbose;
+        private final UDPUtility eotUtility;
         private final String direction;
 
         ReceiveTask(UDPUtility udpUtility, LinkedBlockingQueue<Packet> queue,
-                    double discardProbability, int maxDelay, boolean verbose, String direction) {
+                    double discardProbability, int maxDelay, boolean verbose, UDPUtility eotUtility, String direction) {
             this.udpUtility = udpUtility;
             this.queue = queue;
             this.discardProbability = discardProbability;
             this.maxDelay = maxDelay;
             this.verbose = verbose;
+            this.eotUtility = eotUtility;
             this.direction = direction;
         }
 
@@ -207,9 +210,7 @@ public class Emulator {
                         // wait until there are no more packets in the buffer
                         // while (!queue.isEmpty());
                         // lock.lock();
-                        System.out.println("[Emulator] sending EOT");
-                        receiverUtility.sendPacket(packet);
-                        System.out.println("[Emulator] EOT sent");
+                        eotUtility.sendPacket(packet);
                         System.out.println("EOT from receive task: " + direction);
                         // lock.unlock();
                     } else {    // packet.getType() == Constant.DATA/ACK

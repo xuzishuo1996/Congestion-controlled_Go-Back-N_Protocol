@@ -284,6 +284,7 @@ public class Sender {
             Packet ackPacket = udpUtility.receivePacket();
             if (ackPacket.getType() == Constant.EOT) {
                 // for [debug]
+                timer.cancel();
                 System.out.println("Sender receives EOT from the receiver!");
                 System.exit(0);
             }

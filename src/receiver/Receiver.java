@@ -109,11 +109,8 @@ public class Receiver {
                 // sender logic guarantees that all segments have been transferred
                 System.out.println("[Receiver] receives EOT!");
 
-                // not coming in here, but sender get EOT, weird
-                System.out.println("[Receiver] has received all packets!");
                 udpUtility.sendPacket(new Packet(Constant.EOT,
                         (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
-                System.out.println("[Receiver] has received all packets!");
 
                 arrivalLog.close();
                 writer.close();
