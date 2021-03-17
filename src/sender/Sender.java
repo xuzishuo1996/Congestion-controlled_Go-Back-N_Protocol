@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,7 +25,7 @@ public class Sender {
     static InetAddress emulatorAddress = null;
     static int sPort = 0;
     static int rPort = 0;
-    static int timeout = 0;    // in millisecond
+    static int timeout;    // in millisecond
     static String filename = null;
     static BufferedReader reader = null;
 
@@ -124,7 +125,6 @@ public class Sender {
         // represents that all packets have been sent once (but may or may not acked)
         boolean EOTStage = false;
 
-        lock.lock();
         // at the beginning
         // get initial packets
         System.out.println("N = " + N + " before sending the first packet");
@@ -140,137 +140,155 @@ public class Sender {
                 break;
             }
         }
-        // send initial packets
-        boolean isFirst = true;
-        for (Packet packet: packets) {
-            udpUtility.sendPacket(packet);
-            // inc timestamp upon send
-            timestamp.incrementAndGet();
-            System.out.println("t=" + timestamp + " " + packet.getSeqNum() + " in sending initial packets");
-            // log the send action
-            seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
-            seqLog.flush();
-            // start the timer for the oldest packet
-            if (isFirst) {
-                timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                timerStarted = true;
-                isFirst = false;
+
+        lock.lock();
+        try{
+            // send initial packets
+            boolean isFirst = true;
+            for (Packet packet: packets) {
+                udpUtility.sendPacket(packet);
+                // inc timestamp upon send
+                timestamp.incrementAndGet();
+                System.out.println("t=" + timestamp + " " + packet.getSeqNum() + " in sending initial packets");
+                // log the send action
+                seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
+                seqLog.flush();
+                // start the timer for the oldest packet
+                if (isFirst) {
+                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                    timerStarted = true;
+                    isFirst = false;
+                }
             }
+        } finally {
+            lock.unlock();
         }
-        lock.unlock();
 
         System.out.println("Sender: initial packets sent!");
         System.out.println("N = " + N + " after initial packets sent");
 
         while (true) {
-            // TODO: the position of this lock. Could socket receive be interrupted?
+            // the position of this lock have to be after receive. Could socket receive be interrupted? Yes
             /* receive actions */
             Packet ackPacket = udpUtility.receivePacket();
-            lock.lock();
-            // inc timestamp upon receive
-            timestamp.incrementAndGet();
-            // log the ack action
-            ackLog.println("t=" + timestamp + " " + ackPacket.getSeqNum());
-            ackLog.flush();
 
-            assert packets.peekFirst() != null;
-            int oldestSeqNum = packets.peekFirst().getSeqNum();
-            lock.unlock();
+            lock.lock();
+            int oldestSeqNum;
+            try {
+                // inc timestamp upon receive
+                timestamp.incrementAndGet();
+                // log the ack action
+                ackLog.println("t=" + timestamp + " " + ackPacket.getSeqNum());
+                ackLog.flush();
+
+                assert packets.peekFirst() != null;
+                oldestSeqNum = packets.peekFirst().getSeqNum();
+            } finally {
+                lock.unlock();
+            }
 
             // Thread.sleep(1);
             System.out.println("[After sender receiving] Now N = " + N);
 
             // check if ack seqNum fall within the sending window
             lock.lock();
-            if (ackPacket.getSeqNum() >= oldestSeqNum && ackPacket.getSeqNum() < oldestSeqNum + N) {
-                // if there are unacked packets
-                if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
-                    // restart timer
-                    // if (timerStarted) { timer.cancel(); }
-                    timer.cancel();
-                    timer = new Timer();
-                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                    timerStarted = true;
-                }
-                // remove acked packets from the window
-                for (int i = 0; i < ackPacket.getSeqNum() - oldestSeqNum + 1; ++i) {
-                    packets.pollFirst();
-                }
-                // inc the sending window size
-                if (N < 10) {
-                    ++N;
-                    System.out.println("inc N, now N = " + N);
-                    // log: do not inc timestamp here
-                    nLog.println("t=" + timestamp + " " + N);
-                    nLog.flush();
-                }
-                lock.unlock();
-
-                // Thread.sleep(1);
-
-                // if all packets have been acked
-                if (EOTStage && packets.isEmpty()) {
-                    // send EOT to the receiver
-                    udpUtility.sendPacket(new Packet(Constant.EOT, 0, 0, null));
-                    System.out.println("Sender EOT sent!");
-                    break;
-                }
-
-                lock.lock();
-                /* send actions: check if the window if full */
-                // sent but unacked packets remain in the window, only send newly added packets within the window
-                // resend only appears upon timeout
-                if (packets.size() < N) {
-                    if (!EOTStage) {
-                        int sendNum = N - packets.size();
-                        List<Packet> newlyAddedPackets = new ArrayList<>(sendNum);
-                        // int[] seqNums = new int[sendNum];
-                        for (int i = 0; i < sendNum; ++i) {
-                            try {
-                                Packet packet = reader.getNextPacket();
-                                newlyAddedPackets.add(packet);
-                                packets.add(packet);
-                            } catch (EOFException e) {
-                                EOTStage = true;
-                                sendNum = i;
-                            }
-                        }
-                        for (int i = 0; i < sendNum; ++i) {
-                            udpUtility.sendPacket(newlyAddedPackets.get(i));
-                            // inc timestamp upon send
-                            timestamp.incrementAndGet();
-                            // log the send action
-                            seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
-                            seqLog.flush();
-
-                            // if i = 0 and timer not started, start timer
-                            if (i == 0) {
-                                // if (timerStarted) { timer.cancel(); }
-                                timer.cancel();
-                                timer = new Timer();
-                                timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                                timerStarted = true;
-                            }
-                        }
+            try {
+                if (ackPacket.getSeqNum() >= oldestSeqNum && ackPacket.getSeqNum() < oldestSeqNum + N) {
+                    // if there are unacked packets
+                    if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
+                        // restart timer
+                        // if (timerStarted) { timer.cancel(); }
+                        timer.cancel();
+                        timer = new Timer();
+                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                        timerStarted = true;
                     }
-                } else {
-                    // start timer
-                    // if (timerStarted) { timer.cancel(); }
-                    timer.cancel();
-                    timer = new Timer();
-                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                    timerStarted = true;
+                    // remove acked packets from the window
+                    for (int i = 0; i < ackPacket.getSeqNum() - oldestSeqNum + 1; ++i) {
+                        packets.pollFirst();
+                    }
+                    // inc the sending window size
+                    if (N < 10) {
+                        ++N;
+                        System.out.println("inc N, now N = " + N);
+                        // log: do not inc timestamp here
+                        nLog.println("t=" + timestamp + " " + N);
+                        nLog.flush();
+                    }
+                    // lock.unlock();
+
+                    // Thread.sleep(1);
+
+                    // if all packets have been acked
+                    if (EOTStage && packets.isEmpty()) {
+                        // send EOT to the receiver
+                        udpUtility.sendPacket(new Packet(Constant.EOT, 0, 0, null));
+                        System.out.println("Sender EOT sent!");
+                        break;
+                    }
+
+                    // lock.lock();
+                    /* send actions: check if the window if full */
+                    // sent but unacked packets remain in the window, only send newly added packets within the window
+                    // resend only appears upon timeout
+                    if (packets.size() < N) {
+                        if (!EOTStage) {
+                            int sendNum = N - packets.size();
+                            List<Packet> newlyAddedPackets = new ArrayList<>(sendNum);
+                            // int[] seqNums = new int[sendNum];
+                            for (int i = 0; i < sendNum; ++i) {
+                                try {
+                                    Packet packet = reader.getNextPacket();
+                                    newlyAddedPackets.add(packet);
+                                    packets.add(packet);
+                                } catch (EOFException e) {
+                                    EOTStage = true;
+                                    sendNum = i;
+                                }
+                            }
+                            for (int i = 0; i < sendNum; ++i) {
+                                udpUtility.sendPacket(newlyAddedPackets.get(i));
+                                // inc timestamp upon send
+                                timestamp.incrementAndGet();
+                                // log the send action
+                                seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
+                                seqLog.flush();
+
+                                // if i = 0 and timer not started, start timer
+                                if (i == 0) {
+                                    // if (timerStarted) { timer.cancel(); }
+                                    timer.cancel();
+                                    timer = new Timer();
+                                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                                    timerStarted = true;
+                                }
+                            }
+                        }
+                    } else {
+                        // start timer
+                        // if (timerStarted) { timer.cancel(); }
+                        timer.cancel();
+                        timer = new Timer();
+                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                        timerStarted = true;
+                    }
                 }
+            } finally {
+                lock.unlock();
             }
-            lock.unlock();
         }
 
-        // wait for receiver's EOT
-        Packet ackPacket = udpUtility.receivePacket();
-        if (ackPacket.getType() == Constant.EOT) {
-            // for [debug]
-            System.out.println("Sender receives EOT from the receiver!");
-            // System.exit(0);
+        lock.lock();
+        try {
+            // wait for receiver's EOT
+            Packet ackPacket = udpUtility.receivePacket();
+            if (ackPacket.getType() == Constant.EOT) {
+                // for [debug]
+                System.out.println("Sender receives EOT from the receiver!");
+                System.exit(0);
+            }
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -295,28 +313,31 @@ public class Sender {
         public void run() {
             // TODO: these assignments need to be atomic
             lock.lock();
-            // do not need to timer.cancel() since itself is the single task instance
-            N = 1;
-            // inc timestamp upon timeout
-            timestamp.incrementAndGet();
-            nLog.println("t=" + timestamp + " " + N);
-            nLog.flush();
-            System.out.println("t=" + timestamp + " : timeout, N = 1 and re-transmit" );
-            // retransmission
-            Packet packetToResend = packets.peekFirst();
             try {
-                assert packetToResend != null;
-                udpUtility.sendPacket(packetToResend);
-            } catch (IOException e) {
-                e.printStackTrace();
+                // do not need to timer.cancel() since itself is the single task instance
+                N = 1;
+                // inc timestamp upon timeout
+                timestamp.incrementAndGet();
+                nLog.println("t=" + timestamp + " " + N);
+                nLog.flush();
+                System.out.println("t=" + timestamp + " : timeout, N = 1 and re-transmit");
+                // retransmission
+                Packet packetToResend = packets.peekFirst();
+                try {
+                    assert packetToResend != null;
+                    udpUtility.sendPacket(packetToResend);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                // log resend: do not inc timestamp here
+                seqLog.println("t=" + timestamp + " " + packetToResend.getSeqNum());
+                seqLog.flush();
+                // start the timer
+                timer = new Timer();
+                timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+            } finally {
+                lock.unlock();
             }
-            // log resend: do not inc timestamp here
-            seqLog.println("t=" + timestamp + " " + packetToResend.getSeqNum());
-            seqLog.flush();
-            // start the timer
-            timer = new Timer();
-            timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-            lock.unlock();
         }
     }
 }
