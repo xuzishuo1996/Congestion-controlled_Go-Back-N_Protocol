@@ -8,8 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -20,7 +19,11 @@ public class Sender {
     static Integer N = 10;
     // or int? AtomicLong?
     static AtomicInteger timestamp = new AtomicInteger(0);
-    static final Lock lock = new ReentrantLock();
+    static final ReentrantLock lock = new ReentrantLock();
+    // static final ExecutorService exec = Executors.newCachedThreadPool(); // or single
+    // GBN: only one timer instance for the oldest unacked packet
+    static final ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
+    static ScheduledFuture<?> future;
 
     static InetAddress emulatorAddress = null;
     static int sPort = 0;
@@ -95,6 +98,12 @@ public class Sender {
 
         UDPUtility udpUtility = new UDPUtility(sPort, rPort, emulatorAddress);
 
+        // add shutdown hook for the executor
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("executing shutdown hook");
+            exec.shutdownNow();
+        }));
+
         try {
             sendHelper(myFileReaderString, udpUtility, timeout, seqLog, ackLog, nLog);
         } finally {
@@ -155,8 +164,9 @@ public class Sender {
                 seqLog.flush();
                 // start the timer for the oldest packet
                 if (isFirst) {
-                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                    timerStarted = true;
+                    future = exec.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout, TimeUnit.MILLISECONDS);
+                    // timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+                    // timerStarted = true;
                     isFirst = false;
                 }
             }
@@ -197,11 +207,13 @@ public class Sender {
                     // if there are unacked packets
                     if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
                         // restart timer
-                        // if (timerStarted) { timer.cancel(); }
-                        timer.cancel();
-                        timer = new Timer();
-                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                        timerStarted = true;
+                        future.cancel(true);
+                        exec.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout, TimeUnit.MILLISECONDS);
+//                        // if (timerStarted) { timer.cancel(); }
+//                        timer.cancel();
+//                        timer = new Timer();
+//                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+//                        timerStarted = true;
                     }
                     // remove acked packets from the window
                     for (int i = 0; i < ackPacket.getSeqNum() - oldestSeqNum + 1; ++i) {
@@ -256,21 +268,25 @@ public class Sender {
 
                                 // if i = 0 and timer not started, start timer
                                 if (i == 0) {
-                                    // if (timerStarted) { timer.cancel(); }
-                                    timer.cancel();
-                                    timer = new Timer();
-                                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                                    timerStarted = true;
+                                    future.cancel(true);
+                                    exec.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout, TimeUnit.MILLISECONDS);
+//                                    // if (timerStarted) { timer.cancel(); }
+//                                    timer.cancel();
+//                                    timer = new Timer();
+//                                    timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+//                                    timerStarted = true;
                                 }
                             }
                         }
                     } else {
                         // start timer
-                        // if (timerStarted) { timer.cancel(); }
-                        timer.cancel();
-                        timer = new Timer();
-                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                        timerStarted = true;
+                        future.cancel(true);
+                        exec.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout, TimeUnit.MILLISECONDS);
+//                        // if (timerStarted) { timer.cancel(); }
+//                        timer.cancel();
+//                        timer = new Timer();
+//                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+//                        timerStarted = true;
                     }
                 }
             } finally {
