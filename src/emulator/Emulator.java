@@ -211,6 +211,9 @@ public class Emulator {
                         // while (!queue.isEmpty());
                         // lock.lock();
                         eotUtility.sendPacket(packet);
+                        if (verbose) {
+                            logAction("forwarding", packet.getType(), packet.getSeqNum());
+                        }
                         System.out.println("EOT from receive task: " + direction);
                         // lock.unlock();
                     } else {    // packet.getType() == Constant.DATA/ACK
