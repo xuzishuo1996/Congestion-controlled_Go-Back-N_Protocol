@@ -106,27 +106,37 @@ public class Receiver {
                     rcvBase = (rcvBase + 1 + Constant.MODULO) % Constant.MODULO;
                 }
             } else {    // type == Constant.EOT
-                // has acked all segments
-                System.out.println();
+                // sender logic guarantees that all segments have been transferred
+                System.out.println("[Receiver] receives EOT!");
 
-                if (rcvSeqNum == (rcvBase - 1 + Constant.MODULO) % Constant.MODULO) {
-                    // not coming in here, but sender get EOT, weird
-                    System.out.println("[Receiver] has received all packets!");
-                    udpUtility.sendPacket(new Packet(Constant.EOT,
-                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
-                    System.out.println("[Receiver] has received all packets!");
+                // not coming in here, but sender get EOT, weird
+                System.out.println("[Receiver] has received all packets!");
+                udpUtility.sendPacket(new Packet(Constant.EOT,
+                        (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
+                System.out.println("[Receiver] has received all packets!");
 
-                    arrivalLog.close();
-                    writer.close();
-                    System.exit(0);
-                }
-                // has segments not been acked
-                else {
-                    System.out.println("[Receiver] has received EOT but some packets unreceived!");
+                arrivalLog.close();
+                writer.close();
+                System.exit(0);
 
-                    udpUtility.sendPacket(new Packet(Constant.ACK,
-                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
-                }
+//                if (rcvSeqNum == (rcvBase - 1 + Constant.MODULO) % Constant.MODULO) {
+//                    // not coming in here, but sender get EOT, weird
+//                    System.out.println("[Receiver] has received all packets!");
+//                    udpUtility.sendPacket(new Packet(Constant.EOT,
+//                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
+//                    System.out.println("[Receiver] has received all packets!");
+//
+//                    arrivalLog.close();
+//                    writer.close();
+//                    System.exit(0);
+//                }
+//                // has segments not been acked
+//                else {
+//                    System.out.println("[Receiver] has received EOT but some packets unreceived!");
+//
+//                    udpUtility.sendPacket(new Packet(Constant.ACK,
+//                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
+//                }
             }
         }
     }
