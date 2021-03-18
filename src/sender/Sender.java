@@ -188,12 +188,13 @@ public class Sender {
             // Thread.sleep(1);
             System.out.println("t=" + timestamp + " [After sender receiving " + ackPacket.getSeqNum() +  " ] Now N = " + N);
 
-            // check if ack seqNum fall within the sending window
             lock.lock();
             try {
+                // check if ack seqNum fall within the sending window
                 if (ackPacket.getSeqNum() >= oldestSeqNum && ackPacket.getSeqNum() < oldestSeqNum + N) {
                     // if there are unacked packets
-                    if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
+                    // if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
+                    if (ackPacket.getSeqNum() < oldestSeqNum + N) {
                         // restart timer
                         // if (timerStarted) { timer.cancel(); }
                         timer.cancel();
