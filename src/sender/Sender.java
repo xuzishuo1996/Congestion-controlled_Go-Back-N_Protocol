@@ -214,6 +214,12 @@ public class Sender {
                         timerStarted = true;
                     }
 
+                    System.out.print("Current packets in the buffer: ");
+                    for (Packet packet: packets) {
+                        System.out.print(packet.getSeqNum() + " ");
+                    }
+                    System.out.println();
+
                     // inc the sending window size
                     if (N < 10) {
                         ++N;
@@ -239,6 +245,7 @@ public class Sender {
                     /* send actions: check if the window if full */
                     // sent but unacked packets remain in the window, only send newly added packets within the window
                     // resend only appears upon timeout
+                    boolean emptyWindowFlag = packets.isEmpty();
                     if (packets.size() < N) {   // need to send new packets
                         if (!EOTStage) {
                             int sendNum = N - packets.size();
@@ -265,7 +272,7 @@ public class Sender {
                                         " [newly added packet] " + newlyAddedPackets.get(i).getSeqNum());
 
                                 // if i = 0 and timer not started, start timer
-                                if (i == 0 && packets.size() == 1) {    // packets.size == 0 before adding the new packet
+                                if (i == 0 && emptyWindowFlag) {    // packets.size == 0 before adding the new packet
                                     timer.cancel();
                                     timer = new Timer();
                                     timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
