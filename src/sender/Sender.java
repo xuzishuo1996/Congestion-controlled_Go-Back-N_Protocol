@@ -192,20 +192,28 @@ public class Sender {
             try {
                 // check if ack seqNum fall within the sending window
                 if (ackPacket.getSeqNum() >= oldestSeqNum && ackPacket.getSeqNum() < oldestSeqNum + N) {
-                    // if there are unacked packets
-                    // if (ackPacket.getSeqNum() < oldestSeqNum + N - 1) {
-                    if (ackPacket.getSeqNum() < oldestSeqNum + N) {
+                    // accumulative ack
+                    // remove acked packets from the window
+                    for (int i = 0; i < ackPacket.getSeqNum() - oldestSeqNum + 1; ++i) {
+                        packets.pollFirst();
+                    }
+
+                    // if there are no in-flight unacked packets in the window now
+                    if (ackPacket.getSeqNum() == oldestSeqNum + N - 1) {
+                        // If there are no outstanding packets, the timer is stopped.
+                        timer.cancel();
+                        timerStarted = false;
+                        System.out.println("no in-flight packets now!");
+                    } else {
+                        // if there are in-flight unacked packets in the window now:
+                        // (ackPacket.getSeqNum() < oldestSeqNum + N - 1)
                         // restart timer
-                        // if (timerStarted) { timer.cancel(); }
                         timer.cancel();
                         timer = new Timer();
                         timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
                         timerStarted = true;
                     }
-                    // remove acked packets from the window
-                    for (int i = 0; i < ackPacket.getSeqNum() - oldestSeqNum + 1; ++i) {
-                        packets.pollFirst();
-                    }
+
                     // inc the sending window size
                     if (N < 10) {
                         ++N;
@@ -216,8 +224,8 @@ public class Sender {
                     }
                     // lock.unlock();
 
-                    // Thread.sleep(1);
 
+                    // Thread.sleep(1);
                     // if all packets have been acked
                     if (EOTStage && packets.isEmpty()) {
                         // send EOT to the receiver
@@ -226,11 +234,12 @@ public class Sender {
                         break;
                     }
 
+
                     // lock.lock();
                     /* send actions: check if the window if full */
                     // sent but unacked packets remain in the window, only send newly added packets within the window
                     // resend only appears upon timeout
-                    if (packets.size() < N) {
+                    if (packets.size() < N) {   // need to send new packets
                         if (!EOTStage) {
                             int sendNum = N - packets.size();
                             List<Packet> newlyAddedPackets = new ArrayList<>(sendNum);
@@ -256,22 +265,22 @@ public class Sender {
                                         " [newly added packet] " + newlyAddedPackets.get(i).getSeqNum());
 
                                 // if i = 0 and timer not started, start timer
-                                if (i == 0) {
-                                    // if (timerStarted) { timer.cancel(); }
+                                if (i == 0 && packets.size() == 1) {    // packets.size == 0 before adding the new packet
                                     timer.cancel();
                                     timer = new Timer();
                                     timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
                                     timerStarted = true;
+                                    System.out.println("restart timer on newly added packet!");
                                 }
                             }
                         }
-                    } else {
-                        // start timer
-                        // if (timerStarted) { timer.cancel(); }
-                        timer.cancel();
-                        timer = new Timer();
-                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                        timerStarted = true;
+                    } else {    // packets.size() >= N, do not need to send new packets
+//                        // start timer
+//                        // if (timerStarted) { timer.cancel(); }
+//                        timer.cancel();
+//                        timer = new Timer();
+//                        timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
+//                        timerStarted = true;
                     }
                 }
             } finally {
@@ -318,6 +327,7 @@ public class Sender {
             lock.lock();
             try {
                 // do not need to timer.cancel() since itself is the single task instance
+                timer.cancel();
                 N = 1;
                 // inc timestamp upon timeout
                 timestamp.incrementAndGet();
