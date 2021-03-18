@@ -1,0 +1,1202 @@
+10 times
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+FAQ Assignment 2
+ 
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+Q. Submission format on Learn
+A. Zip all of your scripts into a single zip file. The name of the zip-file should be your quest username.
+
+Q. How long should the timer be?
+A. It is an implementation detail that need to be handled by the student. Choose an appropriate value (not too small to cause lots of packet re-transmissions and not too long to wait forever for ACKs) between 50ms - 200ms
+ 
+Q. Do we need multi-threading?
+A. The network emulator must be multi-threaded. For the sender, multi-threading is recommended but not required.
+ 
+Q. Any restriction on Programming Language?
+A. As long as the code compiles/runs on the linux.student.cs environment, there is no restriction.
+ 
+Q. Can the EOT packet get lost?
+A. EOT should not be dropped by the network emulator.
+ 
+Q. Can we reuse some code from A1?
+A. Yes
+  
+Q. Do we need to handle binary files?
+A. Not required. Handling only text files is fine.
+
+Q. How the code will be tested?
+A. Your code will be tested by setting various levels of delay and loss, e.g., a very lossy super-fast channel, a very slow reliable channel etc. to create different scenarios.
+
+Q. How to find open port numbers?
+The following command will return 3 random open ports between 1024 and 65535.
+
+comm -23 <(seq 1024 65535 | sort) <(ss -tan | awk '{print $4}' | cut -d':' -f2 | grep "[0-9]\{1,5\}" | sort -u) | shuf | head -n 3
+
+Q. What is the format of the Verbose mode on the network Emulator?
+A. No particular formatting is required, as long as the network emulator ouputs its internal processing, one per line, e.g. receiving Packet se-qnum /ACK seqnum, discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum.
+
+Q. Does the sender restart the timer when receiving a duplicate ack?
+No. The sender should ignore duplicate acks.
+
+Q. What’s the format of the packet discard probability?
+A float in the range of 0 to 1
+
+A few notes:
+- If there is a port collision while running your programs, that is because other people are running theirs as well. Just pick a different port number.
+- In case, there are specific questions about GBN, first have a look into lecture note slides. Also, here is a nice animation for understanding GBN: http://www.ccs-labs.org/teaching/rn/animations/gbn_sr/
+But remember you are implementing GBN with a twist: your GBN is congestion-controlled!
+
+Happy, healthy, and successful new term and new year everyone!
+
+It is my pleasure to be your instructor for CS 456/656 this term. I am looking forward to introducing you to computer networking!
+
+LEARN is the main platform for this course. Please start by checking the course overview. You will find there the course outline and various information related to the requirements and logistics. On the calendar, you should find tentative important dates. Lecture notes and videos, quizzes, and assignments will all be posted on LEARN.
+
+There is a required textbook for this course as you can read in the course overview. This term we are adopting the 8th edition of "Computer Networking: a top-down approach" by Kurose and Ross. We will be covering the first 6 Chapters. I encourage you to work on the review questions and problems that you can find at the end of each chapter. If you are not able to get the 8th edition, you may also use the 7th. The is an important overlapping between the two editions, however some of the protocols we will discussing this terms are not covered in the 7th edition (e.g. HTTP/2 and HTTP/3 in Chapter 2, CUBIC and QUIC in Chapter 3).
+
+A classroom was created for us on Microsoft Teams, the UW preferred communication tool, other than email, and that's where you should post your course-related questions. I can be reached on Teams during my office hour, however I encourage you to make an appointment beforehand. Occasionally I will hold open Q&A sessions during my office hour. The first is on Thursday January 14th at 3:30pm.  
+
+We are all going through challenging times but I am confident that the term will go as smoothly as could be.
+
+Stay safe!
+
+Noura Limam.
+
+
