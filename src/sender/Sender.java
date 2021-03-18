@@ -4,10 +4,7 @@ import shared.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -118,7 +115,8 @@ public class Sender {
         // packets in the send-window
         // LinkedList<Packet> packets = new LinkedList<>();
 
-        ConcurrentLinkedDeque<Packet> packets = new ConcurrentLinkedDeque<>();
+        // ConcurrentLinkedDeque<Packet> packets = new ConcurrentLinkedDeque<>();
+        ArrayDeque<Packet> packets = new ArrayDeque<>();
         // keeps only a single TimerTask as TCP only use a single timer for the oldest packet
         Timer timer = new Timer();
         boolean timerStarted = false;
@@ -294,14 +292,15 @@ public class Sender {
     }
 
     static class TimeoutTask extends TimerTask {
-        private final ConcurrentLinkedDeque<Packet> packets;
+        // private final ConcurrentLinkedDeque<Packet> packets;
+        private final ArrayDeque<Packet> packets;
         private final UDPUtility udpUtility;
         private final PrintStream nLog;
         private final PrintStream seqLog;
         private Timer timer;
         private final int timeout;
 
-        TimeoutTask(ConcurrentLinkedDeque<Packet> packets, UDPUtility udpUtility, PrintStream nLog, PrintStream seqLog, Timer timer, int timeout) {
+        TimeoutTask(ArrayDeque<Packet> packets, UDPUtility udpUtility, PrintStream nLog, PrintStream seqLog, Timer timer, int timeout) {
             this.packets = packets;
             this.udpUtility = udpUtility;
             this.nLog = nLog;
@@ -322,6 +321,7 @@ public class Sender {
                 nLog.println("t=" + timestamp + " " + N);
                 nLog.flush();
                 System.out.println("t=" + timestamp + " : timeout, N = 1 and re-transmit");
+                System.out.println("buffer size: " + packets.size());
                 // retransmission
                 Packet packetToResend = packets.peekFirst();
                 try {
