@@ -221,11 +221,18 @@ public class Emulator {
                         // send the packet
                         if (randForDiscard.nextDouble() >= discardProbability) {
                             int delay = randForDelay.nextInt(maxDelay + 1); // +1 because the bound is exclusive
-                            // timer task and put it to the queue after the timer becomes 0
-                            new Thread(() -> {
-                                Timer timer = new Timer();
-                                timer.schedule(new DelayPacketTask(queue, packet), delay);
-                            }).start();
+                            if (delay == 0) {
+                                eotUtility.sendPacket(packet);
+                                if (verbose) {
+                                    logAction("forwarding", packet.getType(), packet.getSeqNum());
+                                }
+                            } else {
+                                // timer task and put it to the queue after the timer becomes 0
+                                new Thread(() -> {
+                                    Timer timer = new Timer();
+                                    timer.schedule(new DelayPacketTask(queue, packet), delay);
+                                }).start();
+                            }
                         }
                         // else: discard the packet
                         else {
