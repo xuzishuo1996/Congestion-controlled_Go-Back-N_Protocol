@@ -147,10 +147,10 @@ public class Sender {
                 udpUtility.sendPacket(packet);
                 // inc timestamp upon send
                 timestamp.incrementAndGet();
-                System.out.println("t=" + timestamp + " " + packet.getSeqNum() + " in sending initial packets");
                 // log the send action
                 seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
                 seqLog.flush();
+                System.out.println("t=" + timestamp + " " + packet.getSeqNum() + " in sending initial packets");
                 // start the timer for the oldest packet
                 if (isFirst) {
                     timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
@@ -186,7 +186,7 @@ public class Sender {
             }
 
             // Thread.sleep(1);
-            System.out.println("[After sender receiving] Now N = " + N);
+            System.out.println("t=" + timestamp + " [After sender receiving " + ackPacket.getSeqNum() +  " ] Now N = " + N);
 
             // check if ack seqNum fall within the sending window
             lock.lock();
@@ -208,7 +208,7 @@ public class Sender {
                     // inc the sending window size
                     if (N < 10) {
                         ++N;
-                        System.out.println("inc N, now N = " + N);
+                        System.out.println("t=" + timestamp + " inc N, now N = " + N);
                         // log: do not inc timestamp here
                         nLog.println("t=" + timestamp + " " + N);
                         nLog.flush();
@@ -251,6 +251,8 @@ public class Sender {
                                 // log the send action
                                 seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
                                 seqLog.flush();
+                                System.out.println("t=" + timestamp +
+                                        " [newly added packet] " + newlyAddedPackets.get(i).getSeqNum());
 
                                 // if i = 0 and timer not started, start timer
                                 if (i == 0) {
@@ -319,9 +321,9 @@ public class Sender {
                 // inc timestamp upon timeout
                 timestamp.incrementAndGet();
                 nLog.println("t=" + timestamp + " " + N);
+                // nLog.println("t=" + timestamp + " " + N);
                 nLog.flush();
-                System.out.println("t=" + timestamp + " : timeout, N = 1 and re-transmit");
-                System.out.println("buffer size: " + packets.size());
+                // System.out.println("t=" + timestamp + " : timeout, N = 1 and re-transmit");
                 // retransmission
                 Packet packetToResend = packets.peekFirst();
                 try {
@@ -333,6 +335,9 @@ public class Sender {
                 // log resend: do not inc timestamp here
                 seqLog.println("t=" + timestamp + " " + packetToResend.getSeqNum());
                 seqLog.flush();
+                // for debug only
+                System.out.println("t=" + timestamp + " buffer size: " + packets.size());
+                System.out.println("t=" + timestamp + " timeout N = 1 re-transmit: seqnum = " + packetToResend.getSeqNum());
                 // start the timer
                 timer = new Timer();
                 timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
