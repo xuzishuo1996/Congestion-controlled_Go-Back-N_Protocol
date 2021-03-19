@@ -13,8 +13,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Sender {
 
-    static boolean debugMode = true;
-
     // window size
     static Integer N = 10;
     static AtomicInteger timestamp = new AtomicInteger(0);
@@ -48,17 +46,11 @@ public class Sender {
             System.err.println("Error: Invalid emulator Address!");
             System.exit(-1);
         }
-        if (debugMode) {
-            System.out.println("emulatorAddress is " + emulatorAddress);
-        }
         try {
             sPort = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
             System.err.println("Error: port to receive sender's data should be an integer!");
             System.exit(-1);
-        }
-        if (debugMode) {
-            System.out.println("sPort is " + sPort);
         }
         try {
             rPort = Integer.parseInt(args[2]);
@@ -66,17 +58,11 @@ public class Sender {
             System.err.println("Error: port to receive receiver's ACK should be an integer!");
             System.exit(-1);
         }
-        if (debugMode) {
-            System.out.println("rPort is " + rPort);
-        }
         try {
             timeout = Integer.parseInt(args[3]);
         } catch (NumberFormatException e) {
             System.err.println("Error: timeout interval should be an integer!");
             System.exit(-1);
-        }
-        if (debugMode) {
-            System.out.println("timeout is " + timeout);
         }
         filename = args[4];
         try {
@@ -85,9 +71,6 @@ public class Sender {
         } catch (FileNotFoundException e) {
             System.err.println("Error: file not found!");
             System.exit(-1);
-        }
-        if (debugMode) {
-            System.out.println("filename is " + filename);
         }
 
         // create input file reader
@@ -129,16 +112,10 @@ public class Sender {
 
         // at the beginning
         // get initial packets
-        if (debugMode) {
-            System.out.println("N = " + N + " before sending the first packet");
-        }
         for (int i = 0; i < N; ++i) {
             try {
                 Packet packet = reader.getNextPacket();
                 packets.add(packet);
-                if (debugMode) {
-                    System.out.println("i = " + i);
-                }
             } catch (EOFException e) {  // EOT
                 EOTStage = true;
                 break;
@@ -151,14 +128,14 @@ public class Sender {
             boolean isFirst = true;
             for (Packet packet: packets) {
                 udpUtility.sendPacket(packet);
+
                 // inc timestamp upon send
                 timestamp.incrementAndGet();
+
                 // log the send action
                 seqLog.println("t=" + timestamp + " " + packet.getSeqNum());
                 seqLog.flush();
-                if (debugMode) {
-                    System.out.println("t=" + timestamp + " " + packet.getSeqNum() + " in sending initial packets");
-                }
+
                 // start the timer for the oldest packet
                 if (isFirst) {
                     timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
@@ -167,11 +144,6 @@ public class Sender {
             }
         } finally {
             lock.unlock();
-        }
-
-        if (debugMode) {
-            System.out.println("Sender: initial packets sent!");
-            System.out.println("N = " + N + " after initial packets sent");
         }
 
         while (true) {
@@ -194,10 +166,6 @@ public class Sender {
                 lock.unlock();
             }
 
-            if (debugMode) {
-                System.out.println("t=" + timestamp + " [After sender receiving " + ackPacket.getSeqNum() + " ] Now N = " + N);
-            }
-
             lock.lock();
             try {
                 // check if ack seqNum fall within the sending window
@@ -212,9 +180,6 @@ public class Sender {
                     if (ackPacket.getSeqNum() == oldestSeqNum + N - 1) {
                         // If there are no outstanding packets, the timer is stopped.
                         timer.cancel();
-                        if (debugMode) {
-                            System.out.println("no in-flight packets now!");
-                        }
                     } else {
                         // if there are in-flight unacked packets in the window now:
                         // (ackPacket.getSeqNum() < oldestSeqNum + N - 1)
@@ -224,20 +189,9 @@ public class Sender {
                         timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
                     }
 
-                    if (debugMode) {
-                        System.out.print("Current packets in the buffer: ");
-                    }
-                    for (Packet packet: packets) {
-                        System.out.print(packet.getSeqNum() + " ");
-                    }
-                    System.out.println();
-
                     // inc the sending window size
                     if (N < 10) {
                         ++N;
-                        if (debugMode) {
-                            System.out.println("t=" + timestamp + " inc N, now N = " + N);
-                        }
                         // log: do not inc timestamp here
                         nLog.println("t=" + timestamp + " " + N);
                         nLog.flush();
@@ -247,9 +201,6 @@ public class Sender {
                     if (EOTStage && packets.isEmpty()) {
                         // send EOT to the receiver
                         udpUtility.sendPacket(new Packet(Constant.EOT, 0, 0, null));
-                        if (debugMode) {
-                            System.out.println("Sender EOT sent!");
-                        }
                         break;
                     }
 
@@ -278,19 +229,12 @@ public class Sender {
                                 // log the send action
                                 seqLog.println("t=" + timestamp + " " + newlyAddedPackets.get(i).getSeqNum());
                                 seqLog.flush();
-                                if (debugMode) {
-                                    System.out.println("t=" + timestamp +
-                                            " [newly added packet] " + newlyAddedPackets.get(i).getSeqNum());
-                                }
 
                                 // if i = 0 and timer not started, start timer
                                 if (i == 0 && emptyWindowFlag) {    // packets.size == 0 before adding the new packet
                                     timer.cancel();
                                     timer = new Timer();
                                     timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);
-                                    if (debugMode) {
-                                        System.out.println("restart timer on newly added packet!");
-                                    }
                                 }
                             }
                         }
@@ -307,9 +251,6 @@ public class Sender {
             Packet ackPacket = udpUtility.receivePacket();
             if (ackPacket.getType() == Constant.EOT) {
                 timer.cancel();
-                if (debugMode) {
-                    System.out.println("Sender receives EOT from the receiver!");
-                }
                 System.exit(0);
             }
         } finally {
@@ -345,6 +286,7 @@ public class Sender {
                 timestamp.incrementAndGet();
                 nLog.println("t=" + timestamp + " " + N);
                 nLog.flush();
+
                 // retransmission
                 Packet packetToResend = packets.peekFirst();
                 try {
@@ -356,10 +298,7 @@ public class Sender {
                 // log resend: do not inc timestamp here
                 seqLog.println("t=" + timestamp + " " + packetToResend.getSeqNum());
                 seqLog.flush();
-                if (debugMode) {
-                    System.out.println("t=" + timestamp + " buffer size: " + packets.size());
-                    System.out.println("t=" + timestamp + " timeout N = 1 re-transmit: seqnum = " + packetToResend.getSeqNum());
-                }
+
                 // start the timer
                 timer = new Timer();
                 timer.schedule(new TimeoutTask(packets, udpUtility, nLog, seqLog, timer, timeout), timeout);

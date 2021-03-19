@@ -15,8 +15,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class Emulator {
 
-    static boolean debugMode = true;
-
     /*
      * command line input includes the following:
         • <emulator's receiving UDP port number in the forward (sender) direction> ,
@@ -151,11 +149,6 @@ public class Emulator {
                     if (verbose) {
                         logAction("forwarding", packet.getType(), packet.getSeqNum());
                     }
-                    if (debugMode) {
-                        if (packet.getType() == Constant.EOT) {
-                            System.out.println("EOT from send task: " + direction);
-                        }
-                    }
                 } catch (InterruptedException | IOException e) {
                     e.printStackTrace();
                 }
@@ -194,20 +187,17 @@ public class Emulator {
                     if (verbose) {
                         logAction("receiving", packet.getType(), packet.getSeqNum());
                     }
-                    if (packet.getType() == Constant.EOT) {
+                    if (packet.getType() == Constant.EOT) {     // forward EOT packet directly without delay
                         directForwardUtility.sendPacket(packet);
                         if (verbose) {
                             logAction("forwarding", packet.getType(), packet.getSeqNum());
-                        }
-                        if (debugMode) {
-                            System.out.println("EOT from receive task: " + direction);
                         }
                     } else {    // packet.getType() == Constant.DATA/ACK
                         // decide discard or not
                         // send the packet
                         if (randForDiscard.nextDouble() >= discardProbability) {
                             int delay = randForDelay.nextInt(maxDelay + 1); // +1 because the bound is exclusive
-                            if (delay == 0) {
+                            if (delay == 0) {   // forward directly
                                 directForwardUtility.sendPacket(packet);
                                 if (verbose) {
                                     logAction("forwarding", packet.getType(), packet.getSeqNum());
