@@ -98,7 +98,7 @@ public class Receiver {
                 // sender logic guarantees that all segments have been transferred
 
                 udpUtility.sendPacket(new Packet(Constant.EOT,
-                        (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
+                        rcvSeqNum, 0, null));
 
                 arrivalLog.close();
                 writer.close();
