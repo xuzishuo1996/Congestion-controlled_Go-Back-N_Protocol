@@ -1,0 +1,32 @@
+
+emulator 002
+receiver 008
+sender 010
+
+
+1 not lossy
+./nEmulator 50285 ubuntu1804-008 50288 50287 ubuntu1804-010 50286 1 0.2 1
+./receiver ubuntu1804-002 50287 50288 ./data/output/output2.txt
+./sender ubuntu1804-002 50285 50286 50 ./data/input/input2.txt
+
+2 lossy, fast timeout
+1)
+./nEmulator 50285 ubuntu1804-008 50288 50287 ubuntu1804-010 50286 20 0.8 1
+./receiver ubuntu1804-002 50287 50288 ./data/output/output2.txt
+./sender ubuntu1804-002 50285 50286 50 ./data/input/input2.txt
+
+2)
+./nEmulator 50285 ubuntu1804-008 50288 50287 ubuntu1804-010 50286 1 0.8 1
+./receiver ubuntu1804-002 50287 50288 ./data/output/output2.txt
+./sender ubuntu1804-002 50285 50286 5 ./data/input/input2.txt
+
+3 no emulator lost, no emulator delay (N always = 10)
+./nEmulator 50285 ubuntu1804-008 50288 50287 ubuntu1804-010 50286 0 0 1
+./receiver ubuntu1804-002 50287 50288 ./data/output/output1.txt
+./sender ubuntu1804-002 50285 50286 500 ./data/input/input1.txt
+
+
+diff data/output/output1.txt data/input/input1.txt
+diff data/output/output2.txt data/input/input2.txt
+diff data/output/output3.txt data/input/input3.txt
+diff data/output/output4.txt data/input/input4.txt
