@@ -112,14 +112,15 @@ public class Sender {
     public static void sendHelper(MyFileReaderString reader, UDPUtility udpUtility, int timeout,
                                   PrintStream seqLog, PrintStream ackLog, PrintStream nLog)
             throws IOException, InterruptedException {
-        // packets in the send-window
-        // LinkedList<Packet> packets = new LinkedList<>();
 
-        // ConcurrentLinkedDeque<Packet> packets = new ConcurrentLinkedDeque<>();
+        // packets in the send-window
         ArrayDeque<Packet> packets = new ArrayDeque<>();
+        // ConcurrentLinkedDeque<Packet> packets = new ConcurrentLinkedDeque<>();
+
         // keeps only a single TimerTask as TCP only use a single timer for the oldest packet
         Timer timer = new Timer();
         boolean timerStarted = false;
+
         // represents that all packets have been sent once (but may or may not acked)
         boolean EOTStage = false;
 
@@ -133,7 +134,6 @@ public class Sender {
                 System.out.println("i = " + i);
                 // System.out.println(packet.getData());
             } catch (EOFException e) {  // EOT
-                // TODO: EOT handling
                 EOTStage = true;
                 break;
             }
@@ -230,8 +230,6 @@ public class Sender {
                     }
                     // lock.unlock();
 
-
-                    // Thread.sleep(1);
                     // if all packets have been acked
                     if (EOTStage && packets.isEmpty()) {
                         // send EOT to the receiver
@@ -239,7 +237,6 @@ public class Sender {
                         System.out.println("Sender EOT sent!");
                         break;
                     }
-
 
                     // lock.lock();
                     /* send actions: check if the window if full */

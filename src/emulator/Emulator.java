@@ -120,8 +120,6 @@ public class Emulator {
             }
         }
 
-        System.out.println("here!");
-
         UDPUtility senderUtility = new UDPUtility(backSenderRcvPort, fwdEmuRcvPort, senderAddress);
         UDPUtility receiverUtility = new UDPUtility(fwdRcverRcvPort, backEmuRcvPort, receiverAddress);
 
@@ -181,17 +179,17 @@ public class Emulator {
         private final double discardProbability;
         private final int maxDelay;
         private final boolean verbose;
-        private final UDPUtility eotUtility;
+        private final UDPUtility directForwardUtility;
         private final String direction;
 
         ReceiveTask(UDPUtility udpUtility, LinkedBlockingQueue<Packet> queue,
-                    double discardProbability, int maxDelay, boolean verbose, UDPUtility eotUtility, String direction) {
+                    double discardProbability, int maxDelay, boolean verbose, UDPUtility directForwardUtility, String direction) {
             this.udpUtility = udpUtility;
             this.queue = queue;
             this.discardProbability = discardProbability;
             this.maxDelay = maxDelay;
             this.verbose = verbose;
-            this.eotUtility = eotUtility;
+            this.directForwardUtility = directForwardUtility;
             this.direction = direction;
         }
 
@@ -210,7 +208,7 @@ public class Emulator {
                         // wait until there are no more packets in the buffer
                         // while (!queue.isEmpty());
                         // lock.lock();
-                        eotUtility.sendPacket(packet);
+                        directForwardUtility.sendPacket(packet);
                         if (verbose) {
                             logAction("forwarding", packet.getType(), packet.getSeqNum());
                         }
@@ -222,7 +220,7 @@ public class Emulator {
                         if (randForDiscard.nextDouble() >= discardProbability) {
                             int delay = randForDelay.nextInt(maxDelay + 1); // +1 because the bound is exclusive
                             if (delay == 0) {
-                                eotUtility.sendPacket(packet);
+                                directForwardUtility.sendPacket(packet);
                                 if (verbose) {
                                     logAction("forwarding", packet.getType(), packet.getSeqNum());
                                 }
