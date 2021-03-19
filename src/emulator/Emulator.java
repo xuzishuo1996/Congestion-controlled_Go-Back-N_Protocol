@@ -14,6 +14,9 @@ import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Emulator {
+
+    static boolean debugMode = true;
+
     /*
      * command line input includes the following:
         • <emulator's receiving UDP port number in the forward (sender) direction> ,
@@ -148,9 +151,10 @@ public class Emulator {
                     if (verbose) {
                         logAction("forwarding", packet.getType(), packet.getSeqNum());
                     }
-                    // for debug
-                    if (packet.getType() == Constant.EOT) {
-                        System.out.println("EOT from send task: " + direction);
+                    if (debugMode) {
+                        if (packet.getType() == Constant.EOT) {
+                            System.out.println("EOT from send task: " + direction);
+                        }
                     }
                 } catch (InterruptedException | IOException e) {
                     e.printStackTrace();
@@ -195,7 +199,9 @@ public class Emulator {
                         if (verbose) {
                             logAction("forwarding", packet.getType(), packet.getSeqNum());
                         }
-                        System.out.println("EOT from receive task: " + direction);
+                        if (debugMode) {
+                            System.out.println("EOT from receive task: " + direction);
+                        }
                     } else {    // packet.getType() == Constant.DATA/ACK
                         // decide discard or not
                         // send the packet

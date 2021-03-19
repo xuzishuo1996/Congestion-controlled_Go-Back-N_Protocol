@@ -9,6 +9,9 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Receiver {
+
+    static boolean debugMode = true;
+
     /*
      * command line input includes the following:
      * 1. <hostname for the network emulator>
@@ -35,21 +38,27 @@ public class Receiver {
             System.err.println("Error: Invalid emulator Address!");
             System.exit(-1);
         }
-        System.out.println("emulatorAddress is " + emulatorAddress);
+        if (debugMode) {
+            System.out.println("emulatorAddress is " + emulatorAddress);
+        }
         try {
             sPort = Integer.parseInt(args[1]);
         } catch (NumberFormatException e) {
             System.err.println("Error: port to receive sender's data should be an integer!");
             System.exit(-1);
         }
-        System.out.println("sPort is " + sPort);
+        if (debugMode) {
+            System.out.println("sPort is " + sPort);
+        }
         try {
             rPort = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
             System.err.println("Error: port to receive receiver's ACK should be an integer!");
             System.exit(-1);
         }
-        System.out.println("rPort is " + rPort);
+        if (debugMode) {
+            System.out.println("rPort is " + rPort);
+        }
         filename = args[3];
         try {
             writer = new BufferedWriter(new FileWriter(filename));
@@ -57,9 +66,11 @@ public class Receiver {
             System.err.println("Error: cannot open or create the file to write!");
             System.exit(-1);
         }
-        System.out.println("filename is " + filename);
+        if (debugMode) {
+            System.out.println("filename is " + filename);
+        }
 
-        // set the output log file: in src/ folder
+        // set the output log file
         PrintStream arrivalLog = new PrintStream(
                 new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/arrival.log")));
 
@@ -74,12 +85,16 @@ public class Receiver {
             // see the seq number and check whether write to file and send ack, or resend prev acks
             int type = dataPacket.getType();
             int rcvSeqNum = dataPacket.getSeqNum();
-            System.out.println("rcvSeqNum: " + rcvSeqNum);
+            if (debugMode) {
+                System.out.println("rcvSeqNum: " + rcvSeqNum);
+            }
             if (type == Constant.DATA) {
                 // log
-                System.out.println("Receiver receive data!");
                 arrivalLog.println(rcvSeqNum);
                 arrivalLog.flush();
+                if (debugMode) {
+                    System.out.println("Receiver receive data!");
+                }
 
                 // the sequence number is NOT the one that it is expecting:
                 // discard the received packet and resend an ACK packet for the most recently received in-order packet.
@@ -92,7 +107,6 @@ public class Receiver {
                 else {
                     // write to file
                     writer.write(dataPacket.getData());
-                    // TODO: delete it when submit
                     writer.flush();
                     // ack
                     udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
@@ -101,7 +115,9 @@ public class Receiver {
                 }
             } else {    // type == Constant.EOT
                 // sender logic guarantees that all segments have been transferred
-                System.out.println("[Receiver] receives EOT!");
+                if (debugMode) {
+                    System.out.println("[Receiver] receives EOT!");
+                }
 
                 udpUtility.sendPacket(new Packet(Constant.EOT,
                         (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
