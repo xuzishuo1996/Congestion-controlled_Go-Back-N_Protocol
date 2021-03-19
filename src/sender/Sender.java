@@ -32,7 +32,7 @@ public class Sender {
      * 2. <UDP port number used by the emulator to receive data from the sender>
      * 3. <UDP port number used by the sender to receive ACKs from the emulator>
      * 4. <timeout interval in units of millisecond>
-     * 5. <name of the file to be transferred> in the given order.
+     * 5. <name of the file to be transferred>
      */
     public static void main(String[] args) throws IOException, InterruptedException {
         // parse command line args
