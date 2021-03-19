@@ -1,6 +1,12 @@
+# IDEA related
 .idea/
 *.iml
-target/
+
+# compiled file
 out/
 *.class
+
+# project-specific
+target/
 *.log
+data/output/
