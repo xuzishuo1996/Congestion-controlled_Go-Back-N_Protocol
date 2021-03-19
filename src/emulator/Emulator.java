@@ -14,20 +14,6 @@ import java.util.TimerTask;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Emulator {
-//    static int fwdEmuRcvPort = 0;
-//    static InetAddress receiverAddress = null;
-//    static int fwdRcverRcvPort = 0;
-//    static int backEmuRcvPort = 0;
-//    static InetAddress senderAddress = null;
-//    static int backSenderRcvPort = 0;
-//    static int maxDelay = 0;   // measured in milliseconds
-//    static double discardProbability = 0.0;
-//    static boolean verbose = true;
-
-    // static UDPUtility receiverUtility;
-
-    // static ReentrantLock lock = new ReentrantLock();
-
     /*
      * command line input includes the following:
         • <emulator's receiving UDP port number in the forward (sender) direction> ,
@@ -205,15 +191,11 @@ public class Emulator {
                         logAction("receiving", packet.getType(), packet.getSeqNum());
                     }
                     if (packet.getType() == Constant.EOT) {
-                        // wait until there are no more packets in the buffer
-                        // while (!queue.isEmpty());
-                        // lock.lock();
                         directForwardUtility.sendPacket(packet);
                         if (verbose) {
                             logAction("forwarding", packet.getType(), packet.getSeqNum());
                         }
                         System.out.println("EOT from receive task: " + direction);
-                        // lock.unlock();
                     } else {    // packet.getType() == Constant.DATA/ACK
                         // decide discard or not
                         // send the packet

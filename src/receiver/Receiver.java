@@ -63,9 +63,6 @@ public class Receiver {
         PrintStream arrivalLog = new PrintStream(
                 new BufferedOutputStream(new FileOutputStream(System.getProperty("user.dir") + "/arrival.log")));
 
-//        arrivalLog.print("printed from the receiver at the beginning");
-//        arrivalLog.flush();
-
         // receive window: rcvBase is the next seq to be acked
         // last acked: (rcvBase - 1 + MODULO) % MODULO.
         int rcvBase = 0;
@@ -94,11 +91,8 @@ public class Receiver {
                 // write the newly received packet to the file and update the window
                 else {
                     // write to file
-                    //System.out.println("[Get Data]: " + dataPacket.getData());
-                    //System.out.println("\n=============================================\n");
                     writer.write(dataPacket.getData());
                     // TODO: delete it when submit
-                    //writer.write("\n=============================================\n");
                     writer.flush();
                     // ack
                     udpUtility.sendPacket(new Packet(Constant.ACK, rcvBase, 0, null));
@@ -115,25 +109,6 @@ public class Receiver {
                 arrivalLog.close();
                 writer.close();
                 System.exit(0);
-
-//                if (rcvSeqNum == (rcvBase - 1 + Constant.MODULO) % Constant.MODULO) {
-//                    // not coming in here, but sender get EOT, weird
-//                    System.out.println("[Receiver] has received all packets!");
-//                    udpUtility.sendPacket(new Packet(Constant.EOT,
-//                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
-//                    System.out.println("[Receiver] has received all packets!");
-//
-//                    arrivalLog.close();
-//                    writer.close();
-//                    System.exit(0);
-//                }
-//                // has segments not been acked
-//                else {
-//                    System.out.println("[Receiver] has received EOT but some packets unreceived!");
-//
-//                    udpUtility.sendPacket(new Packet(Constant.ACK,
-//                            (rcvBase - 1 + Constant.MODULO) % Constant.MODULO, 0, null));
-//                }
             }
         }
     }
