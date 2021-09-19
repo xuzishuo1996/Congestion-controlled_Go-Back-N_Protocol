@@ -1,12 +1,20 @@
-# CS656 Computer Networks - Assignment 2
+# Computer Networks: Congestion-controlled Go-Back-N Protocol
 
-z463xu@uwaterloo.ca
+## I. Brief Intro
 
-20900288
+Implemented a congestion-controlled Go-Back-N protocol, which is used to transfer a text file from one host to another across an unreliable network. The protocol should be able to handle network errors (packet loss), packet reordering, and duplicate packets. 
+
+The protocol is unidirectional: data will flow in one direction and ACKs in the opposite direction.
+
+The overall architecture is as follow:
+
+![](/home/xuzishuo1996/找工/cs656.png)
 
 
 
-## 1 Build
+## II. Usage
+
+### 1 Build
 
 ```
 # this command will remove previously generated .class files from target/
@@ -16,9 +24,7 @@ $ make clean
 $ make
 ```
 
-
-
-## 2 Run
+### 2 Run
 
 Run the script in the following sequence:
 
@@ -28,7 +34,7 @@ Run the script in the following sequence:
 
 ​	3) sender 
 
-### Example:
+#### Example:
 
 ​	nEmluator - ubuntu1804-002
 
@@ -42,9 +48,9 @@ $ ./receiver ubuntu1804-002 50287 50288 ./data/output/output2.txt
 $ ./sender ubuntu1804-002 50285 50286 50 ./data/input/input2.txt
 ```
 
-### Command Line Arguments
+#### Command Line Arguments
 
-#### 1) nEmulator
+##### 1) nEmulator
 
         • <emulator's receiving UDP port number in the forward (sender) direction> ,
         • <receiver’s network address> ,
@@ -55,7 +61,7 @@ $ ./sender ubuntu1804-002 50285 50286 50 ./data/input/input2.txt
         • <maximum delay of the link in units of millisecond> ,
         • <packet discard probability>
         • <verbose-mode> (Boolean: Set to 1, the network emulator will output its internal processing, one per line, e.g. receiving Packet seqnum /ACK seqnum , discarding Packet seqnum /ACK seqnum, forwarding Packet seqnum /ACK seqnum ).
-#### 2) receiver
+##### 2) receiver
 
 ```
 	1. <hostname for the network emulator>
@@ -64,7 +70,7 @@ $ ./sender ubuntu1804-002 50285 50286 50 ./data/input/input2.txt
 	4. <name of the file into which the received data is written>
 ```
 
-#### 3) sender
+##### 3) sender
 
 ```
 1. <host address of the network emulator> (hostname)
@@ -76,15 +82,7 @@ $ ./sender ubuntu1804-002 50285 50286 50 ./data/input/input2.txt
 
 
 
-## 3 Environment
-
-**Machines that the code was built and tested on**: 
-
-​	ubuntu1804-002.student.cs.uwaterloo.ca
-
-​	ubuntu1804-008.student.cs.uwaterloo.ca
-
-​	ubuntu1804-010.student.cs.uwaterloo.ca
+### 3 Environment
 
 **Make version**: GNU Make 4.1
 
@@ -96,6 +94,6 @@ $ ./sender ubuntu1804-002 50285 50286 50 ./data/input/input2.txt
 
 
 
-## 4 Notes
+### 4 Notes
 
 1 Error messages are printed to the stderr.
