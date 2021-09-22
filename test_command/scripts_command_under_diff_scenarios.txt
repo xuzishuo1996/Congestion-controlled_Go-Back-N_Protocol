@@ -1,4 +1,4 @@
-
+test machine numbers:
 emulator 002
 receiver 008
 sender 010

@@ -47,7 +47,10 @@ public class MyFileReaderString {
         }
     }
 
-    // pass test
+    
+    /**
+     * for test only
+     */
     public static void main(String[] args) throws IOException {
         // System.getProperty("java.class.path")    // class path
         // System.getProperty("user.dir")           // src path

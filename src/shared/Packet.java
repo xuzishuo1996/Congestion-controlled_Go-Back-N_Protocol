@@ -54,23 +54,15 @@ public class Packet {
     public byte[] toUDPBytes() {
         ByteBuffer buffer = ByteBuffer.allocate(Constant.MAX_PACKET_SIZE);
         buffer.putInt(type);
-        //System.out.println("type: " + type);
         buffer.putInt(seqNum);
-        //System.out.println("seqNum: " + seqNum);
-        // length is ok? or have to be data.length() and judge whether data == null?
         buffer.putInt(length);
-        //System.out.println("data.length(): " + data.length());
-        //System.out.println("length: " + length);
 
         byte[] dataBytes = null;
         if (length > 0) {
-             dataBytes = data.getBytes(Constant.ENCODING);
-             // This method transfers bytes into this buffer from the given source array.
-             // System.out.println("data.getBytes().length: " + data.getBytes().length);
-             buffer.put(dataBytes, 0, dataBytes.length);
-//            buffer.put(data.getBytes(Constant.ENCODING), 0, length * Constant.SIZE_OF_CHAR);
+            dataBytes = data.getBytes(Constant.ENCODING);
+            // This method transfers bytes into this buffer from the given source array.
+            buffer.put(dataBytes, 0, dataBytes.length);
         }
-        // System.out.println("buffer.array().length: " + buffer.array().length);
         byte[] src = buffer.array();
         int dataLength = (dataBytes == null) ? 0 : dataBytes.length;
         int packetLength = Constant.PACKET_HEADER_SIZE + dataLength;
@@ -79,6 +71,9 @@ public class Packet {
         return des;
     }
 
+    /**
+     * for test only
+     */
     public static void main(String[] args) throws IOException {
 
 //        ByteBuffer buffer = ByteBuffer.allocate(512);
